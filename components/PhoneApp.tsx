@@ -11,8 +11,12 @@ import { useLanguage } from '@/lib/i18n';
 import LanguageToggle from './LanguageToggle';
 
 /**
- * El portafolio tal como se abre desde el móvil de la escena: una página a pantalla completa
- * con estilo de app moderna (oscura, sans-serif, tarjetas) que se recorre con scroll.
+ * El portafolio tal como se abre desde el móvil de la escena: una página a pantalla completa,
+ * con estilo de app moderna (oscura, cálida, con tarjetas) que se recorre con scroll.
+ *
+ * Paleta (cálida oscura):
+ *   fondo #141009 · tarjeta #1d1812 · borde #332c22 · chip #272019
+ *   oro #e7c988 → #c69a52 · texto #f2ece0 · apagado #a79c88 · tenue #6f6557
  */
 
 const tabs = [
@@ -23,6 +27,16 @@ const tabs = [
   { id: 'app-habilidades', key: 'more', icon: 'M5 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z' },
 ] as const;
 
+/** Clases compartidas para que todas las tarjetas se vean iguales. */
+const CARD = 'rounded-3xl bg-[#1d1812] ring-1 ring-[#332c22]';
+const CHIP = 'rounded-full bg-[#272019] px-3 py-1 text-xs font-medium text-[#cdbfa6] ring-1 ring-[#3a3227]';
+const CHIP_GOLD = 'rounded-full bg-[#e7c988]/10 px-3 py-1 text-xs font-medium text-[#ecd9b0] ring-1 ring-[#e7c988]/25';
+
+const socialIcons: Record<string, React.ReactNode> = {
+  GitHub: <path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.75c0 .27.18.58.69.48A10 10 0 0 0 12 2Z" />,
+  LinkedIn: <path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.75h4v11H3v-11Zm6.5 0h3.8v1.5h.06c.53-1 1.83-2.06 3.77-2.06 4.03 0 4.77 2.65 4.77 6.1v5.46h-4v-4.84c0-1.16-.02-2.64-1.61-2.64-1.61 0-1.86 1.26-1.86 2.56v4.92h-3.93v-11Z" />,
+};
+
 const initials = (name: string) =>
   name
     .split(/\s+/)
@@ -31,13 +45,15 @@ const initials = (name: string) =>
     .map(word => word[0])
     .join('') || '✦';
 
-function SectionTitle({ kicker, title }: { kicker: string; title: string }) {
+function SectionTitle({ index, kicker, title }: { index: string; kicker: string; title: string }) {
   return (
-    <div className="mb-4 flex items-end justify-between">
-      <div>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#c9b690]">{kicker}</p>
-        <h2 className="mt-0.5 text-[22px] font-bold tracking-tight">{title}</h2>
-      </div>
+    <div className="mb-5">
+      <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#d4ba84]">
+        <span className="text-[#e7c988]/70">{index}</span>
+        <span className="h-px w-6 bg-[#e7c988]/30" />
+        {kicker}
+      </p>
+      <h2 className="mt-1.5 text-[24px] font-bold tracking-tight text-[#f3eee4]">{title}</h2>
     </div>
   );
 }
@@ -45,15 +61,21 @@ function SectionTitle({ kicker, title }: { kicker: string; title: string }) {
 function LinkButton({ href, children, primary = false }: { href: string; children: React.ReactNode; primary?: boolean }) {
   const { ui } = useLanguage();
   if (!href) {
-    return <span className="flex-1 rounded-xl border border-dashed border-white/15 py-2 text-center text-xs text-white/40">{children} · {ui.phone.pending}</span>;
+    return (
+      <span className="flex-1 rounded-xl border border-dashed border-[#4a4234] py-2.5 text-center text-xs text-[#8a8070]">
+        {children} · {ui.phone.pending}
+      </span>
+    );
   }
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className={`flex-1 rounded-xl py-2 text-center text-xs font-semibold transition active:scale-95 ${
-        primary ? 'bg-[#cdb995] text-[#1d1e23]' : 'bg-white/10 text-white hover:bg-white/15'
+      className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-center text-xs font-bold transition active:scale-95 ${
+        primary
+          ? 'bg-gradient-to-br from-[#e7c988] to-[#c69a52] text-[#1a1409] shadow-lg shadow-[#e7c988]/10'
+          : 'bg-[#272019] text-[#e7dcc6] ring-1 ring-[#3f3729] hover:bg-[#2f2820]'
       }`}
     >
       {children}
@@ -108,337 +130,386 @@ export default function PhoneApp({ open, onClose }: { open: boolean; onClose(): 
       aria-modal="true"
       aria-label={ph.dialog}
       inert={!open}
-      className={`fixed inset-0 z-40 bg-[#1d1e23] font-sans text-[#ece8e1] antialiased transition-opacity duration-500 ${
+      className={`fixed inset-0 z-40 bg-[#141009] font-sans text-[#f2ece0] antialiased transition-opacity duration-500 ${
         open ? 'opacity-100' : 'pointer-events-none opacity-0'
       }`}
     >
-          {/* Contenido con scroll */}
-          <div ref={scrollRef} className="h-full overflow-y-auto overscroll-contain scroll-smooth pb-28 md:pb-12">
-            {/* Barra superior de la app */}
-            <div className="sticky top-0 z-10 border-b border-white/5 bg-[#1d1e23]/85 backdrop-blur-xl">
-             <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-3 md:px-8">
-              <div className="flex items-center gap-2.5">
-                <span className="grid size-8 place-items-center rounded-full bg-gradient-to-br from-[#ddd0b6] to-[#a99679] text-xs font-bold text-[#1d1e23]">
-                  {profile.initials}
-                </span>
-                <span className="text-[15px] font-semibold">{profile.name.split(' ')[0]}</span>
-              </div>
-              <nav aria-label={ph.sections} className="hidden items-center gap-1 md:flex">
-                {tabs.map(tab => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => goTo(tab.id)}
-                    aria-current={active === tab.id ? 'true' : undefined}
-                    className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${active === tab.id ? 'bg-white/10 text-[#d6c3a1]' : 'text-white/60 hover:text-white'}`}
-                  >
-                    {tab.key === 'more' ? ph.tabs.skills : ph.tabs[tab.key]}
-                  </button>
-                ))}
-              </nav>
-              <div className="flex items-center gap-2">
-              <LanguageToggle className="text-white/70 [&_[aria-pressed=true]]:text-[#d6c3a1]" />
+      {/* Contenido con scroll */}
+      <div ref={scrollRef} className="h-full overflow-y-auto overscroll-contain scroll-smooth pb-28 md:pb-12">
+        {/* Barra superior de la app */}
+        <div className="sticky top-0 z-10 border-b border-[#2a241b] bg-[#141009]/80 backdrop-blur-xl">
+          <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-3 md:px-8">
+            <button type="button" onClick={() => goTo('app-inicio')} className="flex items-center gap-2.5">
+              <span className="grid size-8 place-items-center rounded-xl bg-gradient-to-br from-[#e7c988] to-[#c69a52] text-xs font-black text-[#1a1409]">
+                {profile.initials}
+              </span>
+              <span className="text-[15px] font-semibold tracking-tight">{profile.name.split(' ')[0]}</span>
+            </button>
+            <nav aria-label={ph.sections} className="hidden items-center gap-1 md:flex">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => goTo(tab.id)}
+                  aria-current={active === tab.id ? 'true' : undefined}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+                    active === tab.id ? 'bg-[#e7c988]/12 text-[#e7c988]' : 'text-[#a79c88] hover:text-[#f2ece0]'
+                  }`}
+                >
+                  {tab.key === 'more' ? ph.tabs.skills : ph.tabs[tab.key]}
+                </button>
+              ))}
+            </nav>
+            <div className="flex items-center gap-2">
+              <LanguageToggle className="text-[#a79c88] [&_[aria-pressed=true]]:text-[#e7c988]" />
               <button
                 type="button"
                 onClick={onClose}
                 aria-label={ph.exitLabel}
-                className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white/80 transition hover:bg-white/15"
+                className="flex items-center gap-1 rounded-full bg-[#272019] px-3 py-1.5 text-xs font-medium text-[#cdbfa6] ring-1 ring-[#3a3227] transition hover:bg-[#2f2820]"
               >
                 {ph.exit}
                 <svg viewBox="0 0 24 24" className="size-3.5 fill-none stroke-current stroke-2" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
               </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="mx-auto max-w-5xl space-y-14 px-5 md:space-y-20 md:px-8">
+          {/* Inicio + CV */}
+          <section id="app-inicio" className="pt-5 md:pt-9">
+            <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#2a2217] via-[#1c1710] to-[#15110a] p-6 ring-1 ring-[#3a3225] md:p-11">
+              {/* resplandores y marca de agua */}
+              <div aria-hidden="true" className="absolute -right-16 -top-16 size-60 rounded-full bg-[#e7c988]/15 blur-3xl" />
+              <div aria-hidden="true" className="absolute -bottom-24 -left-10 size-52 rounded-full bg-[#c69a52]/8 blur-3xl" />
+              <span aria-hidden="true" className="pointer-events-none absolute -right-3 -bottom-10 select-none text-[160px] font-black leading-none tracking-tighter text-white/[0.025] md:text-[240px]">
+                {profile.initials}
+              </span>
+
+              <div className="relative">
+                <span className="inline-flex items-center gap-2 rounded-full bg-[#e7c988]/10 px-3 py-1 text-[11px] font-semibold text-[#ecd9b0] ring-1 ring-[#e7c988]/25">
+                  <span className="size-1.5 animate-pulse rounded-full bg-[#7fb888]" />
+                  {t(profile.facts[0]?.value ?? '')}
+                </span>
+                <p className="mt-5 text-sm font-medium text-[#a79c88]">{ph.hello}</p>
+                <h1 className="mt-1 text-[32px] font-extrabold leading-[1.05] tracking-tight md:text-6xl">{profile.fullName}</h1>
+                <p className="mt-2 text-[15px] font-semibold text-[#e7c988] md:text-lg">{t(profile.role)}</p>
+                <p className="mt-4 max-w-xl text-[17px] font-medium leading-relaxed text-[#d9d1c0] md:text-xl">“{t(profile.tagline)}”</p>
+
+                <div className="mt-5 flex flex-wrap gap-1.5">
+                  {profile.focus.map(item => (
+                    <span key={t(item)} className={CHIP}>
+                      {t(item)}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="mt-6 flex flex-wrap items-center gap-2.5">
+                  <a
+                    href={profile.cvUrl}
+                    download
+                    className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-[#e7c988] to-[#c69a52] px-6 py-3 text-sm font-bold text-[#1a1409] shadow-lg shadow-[#e7c988]/15 transition active:scale-95"
+                  >
+                    <svg viewBox="0 0 24 24" className="size-4 fill-none stroke-current stroke-[2.2]" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14" /></svg>
+                    {ph.downloadCv}
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => goTo('app-proyectos')}
+                    className="rounded-2xl bg-[#272019] px-6 py-3 text-sm font-semibold text-[#e7dcc6] ring-1 ring-[#3f3729] transition hover:bg-[#2f2820] active:scale-95"
+                  >
+                    {ph.seeProjects}
+                  </button>
+                  <div className="flex gap-2">
+                    {socialLinks.filter(link => link.url && socialIcons[link.label]).map(link => (
+                      <a
+                        key={link.label}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={link.label}
+                        className="grid size-11 place-items-center rounded-2xl bg-[#272019] text-[#d4c7ad] ring-1 ring-[#3f3729] transition hover:bg-[#2f2820] hover:text-[#e7c988] active:scale-95"
+                      >
+                        <svg viewBox="0 0 24 24" fill="currentColor" className="size-5" aria-hidden="true">{socialIcons[link.label]}</svg>
+                      </a>
+                    ))}
+                  </div>
+                </div>
               </div>
-             </div>
             </div>
 
-            <div className="mx-auto max-w-5xl space-y-10 px-5 md:space-y-16 md:px-8">
-              {/* Inicio + CV */}
-              <section id="app-inicio" className="pt-4 md:pt-8">
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#2b2824] via-[#222124] to-[#1d1e23] p-6 ring-1 md:p-10 ring-white/10">
-                  <div aria-hidden="true" className="absolute -right-10 -top-10 size-44 rounded-full bg-[#d6c3a1]/10 blur-3xl" />
-                  {profile.portrait ? (
-                    <Image
-                      src={profile.portrait}
-                      alt={ph.photo(profile.fullName)}
-                      width={160}
-                      height={160}
-                      className="relative size-20 rounded-2xl object-cover ring-2 ring-[#d6c3a1]/45 md:size-28"
-                    />
-                  ) : (
-                    <div className="relative grid size-20 place-items-center rounded-2xl border border-dashed border-[#d6c3a1]/40 bg-white/5 text-center md:size-28">
-                      <span className="text-[10px] font-medium leading-tight text-white/50">{ph.photoSoon}</span>
-                    </div>
-                  )}
-                  <p className="relative mt-5 text-sm text-white/60">{ph.hello}</p>
-                  <h1 className="relative text-[28px] font-extrabold leading-tight tracking-tight md:text-5xl">{profile.fullName}</h1>
-                  <p className="relative mt-1 text-sm font-medium text-[#d6c3a1]">{t(profile.role)}</p>
-                  <p className="relative mt-3 max-w-xl text-[17px] font-semibold leading-relaxed text-white/85 md:text-xl">“{t(profile.tagline)}”</p>
-                  <div className="relative mt-3 flex flex-wrap gap-1.5">
-                    {profile.focus.map(item => (
-                      <span key={t(item)} className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-medium text-white/80">
+            {/* Datos rápidos */}
+            <div className="mt-3 grid grid-cols-3 gap-2.5">
+              {profile.facts.map(fact => (
+                <div key={t(fact.label)} className={`${CARD} p-3.5`}>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#8a8070]">{t(fact.label)}</p>
+                  <p className="mt-1 text-[13px] font-semibold leading-snug text-[#eadfcb]">{t(fact.value)}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Sobre mí */}
+          <section id="app-sobre-mi">
+            <SectionTitle index="01" kicker={ph.profileKicker} title={ph.about} />
+            <div className={`space-y-3 ${CARD} p-6 text-[15px] leading-relaxed text-[#cfc6b4]`}>
+              {profile.about.map((paragraph, i) => (
+                <p key={i}>{t(paragraph)}</p>
+              ))}
+            </div>
+            <div className={`mt-3 space-y-4 ${CARD} p-6`}>
+              <p className="text-sm font-bold text-[#f3eee4]">{ph.stack}</p>
+              {profile.stack.map(group => (
+                <div key={t(group.group)}>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[#8a8070]">{t(group.group)}</p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {group.items.map(item => (
+                      <span key={t(item)} className={CHIP_GOLD}>
                         {t(item)}
                       </span>
                     ))}
                   </div>
-                  <div className="relative mt-5 flex gap-2.5 md:max-w-md">
-                    <a href={profile.cvUrl} download className="flex flex-1 items-center justify-center gap-1.5 rounded-2xl bg-[#ece6dc] py-3 text-sm font-bold text-[#1d1e23] transition active:scale-95">
-                      <svg viewBox="0 0 24 24" className="size-4 fill-none stroke-current stroke-[2.2]" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14" /></svg>
-                      {ph.downloadCv}
-                    </a>
-                    <button type="button" onClick={() => goTo('app-proyectos')} className="flex-1 rounded-2xl bg-white/10 py-3 text-sm font-semibold transition active:scale-95">
-                      {ph.seeProjects}
-                    </button>
-                  </div>
                 </div>
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  {profile.facts.map(fact => (
-                    <div key={t(fact.label)} className="rounded-2xl bg-white/[0.06] p-3 ring-1 ring-white/5">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-white/45">{t(fact.label)}</p>
-                      <p className="mt-1 text-[12px] font-medium leading-snug">{t(fact.value)}</p>
-                    </div>
-                  ))}
-                </div>
-              </section>
-
-              {/* Sobre mí */}
-              <section id="app-sobre-mi">
-                <SectionTitle kicker={ph.profileKicker} title={ph.about} />
-                <div className="space-y-3 rounded-3xl bg-white/[0.06] p-5 text-[15px] leading-relaxed text-white/80 ring-1 ring-white/5">
-                  {profile.about.map((paragraph, i) => (
-                    <p key={i}>{t(paragraph)}</p>
-                  ))}
-                </div>
-                <div className="mt-3 space-y-3 rounded-3xl bg-white/[0.06] p-5 ring-1 ring-white/5">
-                  <p className="text-sm font-semibold">{ph.stack}</p>
-                  {profile.stack.map(group => (
-                    <div key={t(group.group)}>
-                      <p className="text-[11px] font-semibold uppercase tracking-wider text-white/45">{t(group.group)}</p>
-                      <div className="mt-1.5 flex flex-wrap gap-1.5">
-                        {group.items.map(item => (
-                          <span key={t(item)} className="rounded-full bg-[#d6c3a1]/10 px-3 py-1 text-xs font-medium text-[#e4d8c2]">
-                            {t(item)}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-3 rounded-3xl bg-white/[0.06] p-5 ring-1 ring-white/5">
-                  <p className="text-sm font-semibold">{ph.beyondCode}</p>
-                  <p className="mt-2 text-[14px] leading-relaxed text-white/75">{t(profile.beyondCode)}</p>
-                  <p className="mt-4 text-[11px] font-semibold uppercase tracking-wider text-white/45">{ph.books}</p>
-                  <ul className="mt-2 space-y-1.5">
-                    {profile.books.map(book => (
-                      <li key={book.author} className="flex items-center gap-2 text-[13px]">
-                        <span aria-hidden="true">📖</span>
-                        <span className="font-medium">{t(book.title)}</span>
-                        <span className="text-white/45">· {book.author}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </section>
-
-              {/* Proyectos */}
-              <section id="app-proyectos">
-                <SectionTitle kicker={ph.workKicker} title={ph.projects} />
-                <div className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] md:mx-0 md:grid md:grid-cols-2 md:gap-4 md:overflow-visible md:px-0 lg:grid-cols-3">
-                  {projects.map((project, index) => (
-                    <article key={project.github || index} className="w-[270px] shrink-0 snap-start overflow-hidden rounded-3xl md:w-auto bg-white/[0.06] ring-1 ring-white/5">
-                      <div className="relative aspect-[16/10] bg-gradient-to-br from-[#38342f] to-[#26262b]">
-                        {project.image ? (
-                          <Image src={project.image} alt={ui.projects.screenshot(t(project.title))} fill sizes="(min-width: 768px) 33vw, 270px" className="object-cover" />
-                        ) : (
-                          <span className="grid size-full place-items-center text-4xl font-black text-white/15">{String(index + 1).padStart(2, '0')}</span>
-                        )}
-                        <span className="absolute left-3 top-3 rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-semibold backdrop-blur">{project.year}</span>
-                      </div>
-                      <div className="p-4">
-                        <p className="text-[11px] font-medium text-white/45">{t(project.category)}</p>
-                        <h3 className="mt-0.5 text-[17px] font-bold">{t(project.title)}</h3>
-                        <p className="mt-1.5 line-clamp-3 text-[13px] leading-relaxed text-white/65">{t(project.description)}</p>
-                        <div className="mt-3 flex flex-wrap gap-1">
-                          {project.tags.map(tag => (
-                            <span key={tag} className="rounded-md bg-white/[0.08] px-2 py-0.5 text-[10px] text-white/70">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                        <div className="mt-4 flex gap-2">
-                          <LinkButton href={project.demo} primary>{project.demoLabel ? t(project.demoLabel) : ph.demo}</LinkButton>
-                          <LinkButton href={project.github}>GitHub</LinkButton>
-                        </div>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </section>
-
-              {/* Testimonios */}
-              <section id="app-testimonios">
-                <SectionTitle kicker={ph.reviewsKicker} title={ph.testimonials} />
-                <div className="space-y-3 md:grid md:grid-cols-3 md:gap-4 md:space-y-0">
-                  {testimonials.map(item => (
-                    <figure key={item.name} className="rounded-3xl bg-white/[0.06] p-5 ring-1 ring-white/5">
-                      <div className="flex items-center gap-3">
-                        {item.avatar ? (
-                          <Image src={item.avatar} alt={ph.photo(item.name)} width={44} height={44} className="size-11 rounded-full object-cover" />
-                        ) : (
-                          <span aria-hidden="true" className="grid size-11 place-items-center rounded-full bg-gradient-to-br from-[#a3b0a3] to-[#748378] text-sm font-bold text-[#1d1e23]">
-                            {initials(item.name)}
-                          </span>
-                        )}
-                        <figcaption>
-                          <p className="text-sm font-semibold">{item.name}</p>
-                          <p className="text-xs text-white/50">{t(item.role)}</p>
-                        </figcaption>
-                      </div>
-                      <blockquote className="mt-3 text-[14px] leading-relaxed text-white/75">“{t(item.text)}”</blockquote>
-                    </figure>
-                  ))}
-                </div>
-              </section>
-
-              {/* Experiencia */}
-              <section id="app-experiencia">
-                <SectionTitle kicker={ph.pathKicker} title={ph.experience} />
-                <div role="tablist" aria-label={ph.experienceType} className="mb-4 grid grid-cols-2 rounded-2xl bg-white/[0.06] p-1">
-                  {([['academica', ph.academic], ['laboral', ph.work]] as const).map(([key, label]) => (
-                    <button
-                      key={key}
-                      type="button"
-                      role="tab"
-                      aria-selected={track === key}
-                      onClick={() => setTrack(key)}
-                      className={`rounded-xl py-2 text-sm font-semibold transition ${track === key ? 'bg-[#ece6dc] text-[#1d1e23] shadow' : 'text-white/60'}`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-                <ol className="relative space-y-3 before:absolute before:bottom-4 before:left-[19px] before:top-4 before:w-px before:bg-white/10">
-                  {timeline.map((item, index) => (
-                    <li key={index} className="relative flex gap-4">
-                      <span aria-hidden="true" className="relative z-10 mt-4 grid size-10 shrink-0 place-items-center rounded-full bg-[#1d1e23] ring-1 ring-white/15">
-                        <span className="size-2.5 rounded-full bg-[#cdb995]" />
-                      </span>
-                      <div className="flex-1 rounded-2xl bg-white/[0.06] p-4 ring-1 ring-white/5">
-                        <p className="text-[11px] font-semibold text-[#c9b690]">
-                          {t(item.start)} – {t(item.end)}
-                        </p>
-                        <h3 className="mt-0.5 text-[15px] font-bold leading-snug">{t(item.title)}</h3>
-                        <p className="text-xs text-white/50">{t(item.place)}</p>
-                        <p className="mt-2 text-[13px] leading-relaxed text-white/70">{t(item.description)}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              </section>
-
-              {/* Contacto */}
-              <section id="app-contacto">
-                <SectionTitle kicker={ph.contactKicker} title={ph.contact} />
-                <ul className="divide-y divide-white/5 overflow-hidden rounded-3xl bg-white/[0.06] ring-1 ring-white/5">
-                  {links.map(link => {
-                    const content = (
-                      <>
-                        <span className="grid size-9 place-items-center rounded-xl bg-white/10 text-sm" aria-hidden="true">
-                          {link.label === 'Correo' ? '✉️' : link.label === 'GitHub' ? '🐙' : link.label === 'LinkedIn' ? '💼' : '🔗'}
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block text-sm font-semibold">{link.label === 'Correo' ? ph.email : link.label}</span>
-                          <span className="block truncate text-xs text-white/50">{link.value}</span>
-                        </span>
-                        {link.url && <span aria-hidden="true" className="text-white/30">›</span>}
-                      </>
-                    );
-                    return (
-                      <li key={link.label}>
-                        {link.url ? (
-                          <a href={link.url} target={link.url.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-3 transition hover:bg-white/5">
-                            {content}
-                          </a>
-                        ) : (
-                          <div className="flex items-center gap-3 px-4 py-3 opacity-60">{content}</div>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
-
-                <form onSubmit={handleSubmit} className="mt-4 space-y-2.5 rounded-3xl bg-white/[0.06] p-4 ring-1 ring-white/5">
-                  <p className="px-1 text-sm font-semibold">{ph.sendMessage}</p>
-                  <input name="nombre" required autoComplete="name" placeholder={ph.name} aria-label={ph.name} className="w-full rounded-xl bg-white/[0.07] px-4 py-3 text-sm outline-none ring-1 ring-white/10 placeholder:text-white/35 focus:ring-[#d6c3a1]/50" />
-                  <input name="email" type="email" required autoComplete="email" placeholder={ph.email} aria-label={ph.email} className="w-full rounded-xl bg-white/[0.07] px-4 py-3 text-sm outline-none ring-1 ring-white/10 placeholder:text-white/35 focus:ring-[#d6c3a1]/50" />
-                  <textarea name="mensaje" required minLength={10} rows={4} placeholder={ph.message} aria-label={ph.message} className="w-full resize-none rounded-xl bg-white/[0.07] px-4 py-3 text-sm outline-none ring-1 ring-white/10 placeholder:text-white/35 focus:ring-[#d6c3a1]/50" />
-                  <button type="submit" disabled={state.kind === 'sending'} className="w-full rounded-xl bg-[#cdb995] py-3 text-sm font-bold text-[#1d1e23] hover:bg-[#d8c7a6] transition active:scale-[0.98] disabled:opacity-60">
-                    {state.kind === 'sending' ? ph.sending : ph.send}
-                  </button>
-                  {state.message && (
-                    <p role="status" className={`px-1 text-center text-xs ${state.kind === 'error' ? 'text-[#e2aca3]' : 'text-[#a9c4ad]'}`}>
-                      {state.message}
-                    </p>
-                  )}
-                </form>
-              </section>
-
-              {/* Sección adicional: habilidades */}
-              <section id="app-habilidades">
-                <SectionTitle kicker={ph.extraKicker} title={ph.skills} />
-                <ul className="space-y-2.5 rounded-3xl bg-white/[0.06] p-5 ring-1 ring-white/5">
-                  {skills.map((skill, index) => (
-                    <li key={index} className="flex items-center gap-3 text-[13px] font-medium">
-                      <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-[#cdb995]" />
-                      {t(skill.name)}
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  {interests.map(interest => (
-                    <div key={interest.numeral} className="rounded-2xl bg-white/[0.06] p-3 ring-1 ring-white/5">
-                      <p className="text-[13px] font-bold">{t(interest.title)}</p>
-                      <p className="mt-0.5 text-[10px] leading-snug text-white/50">{t(interest.label)}</p>
-                    </div>
-                  ))}
-                </div>
-              </section>
-
-              {/* Pie */}
-              <footer className="space-y-3 pb-4 pt-2 text-center text-xs text-white/40">
-                <button type="button" onClick={() => goTo('app-inicio')} className="rounded-full bg-white/[0.07] px-4 py-2 font-medium text-white/70">
-                  {ph.backToTop}
-                </button>
-                <p>
-                  © {new Date().getFullYear()} {profile.fullName}
-                </p>
-                <p>{ph.madeWith}</p>
-              </footer>
+              ))}
             </div>
-          </div>
+            <div className={`mt-3 ${CARD} p-6`}>
+              <p className="text-sm font-bold text-[#f3eee4]">{ph.beyondCode}</p>
+              <p className="mt-2 text-[14px] leading-relaxed text-[#cfc6b4]">{t(profile.beyondCode)}</p>
+              <p className="mt-5 text-[11px] font-semibold uppercase tracking-wider text-[#8a8070]">{ph.books}</p>
+              <ul className="mt-2.5 space-y-2">
+                {profile.books.map(book => (
+                  <li key={book.author} className="flex items-center gap-2.5 text-[14px]">
+                    <span aria-hidden="true" className="text-[#e7c988]">📖</span>
+                    <span className="font-semibold text-[#eadfcb]">{t(book.title)}</span>
+                    <span className="text-[#8a8070]">· {book.author}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
 
-          {/* Barra de pestañas */}
-          <nav aria-label={ph.sections} className="absolute inset-x-0 bottom-0 z-20 border-t border-white/5 bg-[#1d1e23]/90 px-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl md:hidden">
-            <ul className="flex justify-around">
-              {tabs.map(tab => {
-                const selected = active === tab.id || (tab.id === 'app-inicio' && ['app-sobre-mi'].includes(active)) || (tab.id === 'app-proyectos' && active === 'app-testimonios');
+          {/* Proyectos */}
+          <section id="app-proyectos">
+            <SectionTitle index="02" kicker={ph.workKicker} title={ph.projects} />
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {projects.map((project, index) => (
+                <article
+                  key={project.github || index}
+                  className={`group flex flex-col overflow-hidden ${CARD} transition hover:ring-[#4a4030]`}
+                >
+                  <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-[#2c2419] to-[#1a1610]">
+                    {project.image ? (
+                      <Image
+                        src={project.image}
+                        alt={ui.projects.screenshot(t(project.title))}
+                        fill
+                        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                        className="object-cover transition duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <span className="grid size-full place-items-center text-5xl font-black text-[#e7c988]/15">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                    )}
+                    <span className="absolute left-3 top-3 rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-semibold text-[#f2ece0] backdrop-blur">
+                      {project.year}
+                    </span>
+                  </div>
+                  <div className="flex flex-1 flex-col p-5">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[#d4ba84]">{t(project.category)}</p>
+                    <h3 className="mt-1 text-[18px] font-bold text-[#f3eee4]">{t(project.title)}</h3>
+                    <p className="mt-2 flex-1 text-[13px] leading-relaxed text-[#b7ad9a]">{t(project.description)}</p>
+                    <div className="mt-3.5 flex flex-wrap gap-1.5">
+                      {project.tags.map(tag => (
+                        <span key={tag} className="rounded-md bg-[#272019] px-2 py-0.5 text-[10px] font-medium text-[#b7ad9a] ring-1 ring-[#3a3227]">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="mt-4 flex gap-2">
+                      <LinkButton href={project.demo} primary>
+                        {project.demoLabel ? t(project.demoLabel) : ph.demo} ↗
+                      </LinkButton>
+                      <LinkButton href={project.github}>GitHub</LinkButton>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          {/* Testimonios */}
+          <section id="app-testimonios">
+            <SectionTitle index="03" kicker={ph.reviewsKicker} title={ph.testimonials} />
+            <div className="space-y-3 md:grid md:grid-cols-3 md:gap-4 md:space-y-0">
+              {testimonials.map(item => (
+                <figure key={item.name} className={`relative flex flex-col ${CARD} p-6`}>
+                  <span aria-hidden="true" className="absolute right-5 top-3 font-serif text-5xl leading-none text-[#e7c988]/20">”</span>
+                  <blockquote className="flex-1 text-[14px] leading-relaxed text-[#cfc6b4]">“{t(item.text)}”</blockquote>
+                  <figcaption className="mt-5 flex items-center gap-3 border-t border-[#2a241b] pt-4">
+                    {item.avatar ? (
+                      <Image src={item.avatar} alt={ph.photo(item.name)} width={44} height={44} className="size-11 rounded-full object-cover" />
+                    ) : (
+                      <span aria-hidden="true" className="grid size-11 place-items-center rounded-full bg-gradient-to-br from-[#e7c988] to-[#c69a52] text-sm font-bold text-[#1a1409]">
+                        {initials(item.name)}
+                      </span>
+                    )}
+                    <span className="min-w-0">
+                      <span className="block text-sm font-bold text-[#f3eee4]">{item.name}</span>
+                      <span className="block text-xs leading-snug text-[#8a8070]">{t(item.role)}</span>
+                    </span>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </section>
+
+          {/* Experiencia */}
+          <section id="app-experiencia">
+            <SectionTitle index="04" kicker={ph.pathKicker} title={ph.experience} />
+            <div role="tablist" aria-label={ph.experienceType} className="mb-5 grid grid-cols-2 gap-1 rounded-2xl bg-[#1d1812] p-1 ring-1 ring-[#332c22]">
+              {([['academica', ph.academic], ['laboral', ph.work]] as const).map(([key, label]) => (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  aria-selected={track === key}
+                  onClick={() => setTrack(key)}
+                  className={`rounded-xl py-2.5 text-sm font-semibold transition ${
+                    track === key ? 'bg-gradient-to-br from-[#e7c988] to-[#c69a52] text-[#1a1409] shadow' : 'text-[#a79c88] hover:text-[#f2ece0]'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <ol className="relative space-y-3 before:absolute before:bottom-5 before:left-[19px] before:top-5 before:w-px before:bg-[#3a3227]">
+              {timeline.map((item, index) => (
+                <li key={index} className="relative flex gap-4">
+                  <span aria-hidden="true" className="relative z-10 mt-4 grid size-10 shrink-0 place-items-center rounded-full bg-[#1d1812] ring-1 ring-[#4a4030]">
+                    <span className="size-2.5 rounded-full bg-gradient-to-br from-[#e7c988] to-[#c69a52]" />
+                  </span>
+                  <div className={`flex-1 ${CARD} p-4`}>
+                    <p className="text-[11px] font-semibold text-[#d4ba84]">
+                      {t(item.start)} – {t(item.end)}
+                    </p>
+                    <h3 className="mt-1 text-[15px] font-bold leading-snug text-[#f3eee4]">{t(item.title)}</h3>
+                    <p className="text-xs text-[#8a8070]">{t(item.place)}</p>
+                    <p className="mt-2 text-[13px] leading-relaxed text-[#b7ad9a]">{t(item.description)}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </section>
+
+          {/* Habilidades (sección extra) */}
+          <section id="app-habilidades">
+            <SectionTitle index="05" kicker={ph.extraKicker} title={ph.skills} />
+            <div className="grid gap-3 sm:grid-cols-3">
+              {interests.map(interest => (
+                <div key={interest.numeral} className={`${CARD} p-5`}>
+                  <span className="font-serif text-3xl italic text-[#e7c988]/70">{interest.numeral}</span>
+                  <p className="mt-1 text-[15px] font-bold text-[#f3eee4]">{t(interest.title)}</p>
+                  <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-[#8a8070]">{t(interest.label)}</p>
+                  <p className="mt-2 text-[13px] leading-relaxed text-[#b7ad9a]">{t(interest.description)}</p>
+                </div>
+              ))}
+            </div>
+            <ul className={`mt-3 grid gap-x-6 gap-y-3 ${CARD} p-6 sm:grid-cols-2`}>
+              {skills.map((skill, index) => (
+                <li key={index} className="flex items-center gap-3 text-[14px] font-medium text-[#eadfcb]">
+                  <span aria-hidden="true" className="grid size-5 shrink-0 place-items-center rounded-full bg-[#e7c988]/12 text-[10px] text-[#e7c988]">✓</span>
+                  {t(skill.name)}
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          {/* Contacto */}
+          <section id="app-contacto">
+            <SectionTitle index="06" kicker={ph.contactKicker} title={ph.contact} />
+            <ul className={`divide-y divide-[#2a241b] overflow-hidden ${CARD}`}>
+              {links.map(link => {
+                const content = (
+                  <>
+                    <span className="grid size-10 place-items-center rounded-xl bg-[#272019] text-sm ring-1 ring-[#3a3227]" aria-hidden="true">
+                      {link.label === 'Correo' ? '✉️' : link.label === 'GitHub' ? '🐙' : link.label === 'LinkedIn' ? '💼' : '🔗'}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-semibold text-[#f3eee4]">{link.label === 'Correo' ? ph.email : link.label}</span>
+                      <span className="block truncate text-xs text-[#8a8070]">{link.value}</span>
+                    </span>
+                    {link.url && <span aria-hidden="true" className="text-[#6f6557]">›</span>}
+                  </>
+                );
                 return (
-                  <li key={tab.id}>
-                    <button
-                      type="button"
-                      onClick={() => goTo(tab.id)}
-                      aria-current={selected ? 'true' : undefined}
-                      className={`flex w-16 flex-col items-center gap-1 py-1 text-[10px] font-medium transition ${selected ? 'text-[#d6c3a1]' : 'text-white/45'}`}
-                    >
-                      <svg viewBox="0 0 24 24" className="size-[22px] fill-current" aria-hidden="true">
-                        <path d={tab.icon} />
-                      </svg>
-                      {ph.tabs[tab.key]}
-                    </button>
+                  <li key={link.label}>
+                    {link.url ? (
+                      <a href={link.url} target={link.url.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-3.5 transition hover:bg-[#241e17]">
+                        {content}
+                      </a>
+                    ) : (
+                      <div className="flex items-center gap-3 px-4 py-3.5 opacity-60">{content}</div>
+                    )}
                   </li>
                 );
               })}
             </ul>
-          </nav>
+
+            <form onSubmit={handleSubmit} className={`mt-4 space-y-2.5 ${CARD} p-5`}>
+              <p className="px-1 text-sm font-bold text-[#f3eee4]">{ph.sendMessage}</p>
+              <input name="nombre" required autoComplete="name" placeholder={ph.name} aria-label={ph.name} className="w-full rounded-xl bg-[#141009] px-4 py-3 text-sm text-[#f2ece0] outline-none ring-1 ring-[#3a3227] transition placeholder:text-[#6f6557] focus:ring-2 focus:ring-[#e7c988]/60" />
+              <input name="email" type="email" required autoComplete="email" placeholder={ph.email} aria-label={ph.email} className="w-full rounded-xl bg-[#141009] px-4 py-3 text-sm text-[#f2ece0] outline-none ring-1 ring-[#3a3227] transition placeholder:text-[#6f6557] focus:ring-2 focus:ring-[#e7c988]/60" />
+              <textarea name="mensaje" required minLength={10} rows={4} placeholder={ph.message} aria-label={ph.message} className="w-full resize-none rounded-xl bg-[#141009] px-4 py-3 text-sm text-[#f2ece0] outline-none ring-1 ring-[#3a3227] transition placeholder:text-[#6f6557] focus:ring-2 focus:ring-[#e7c988]/60" />
+              <button type="submit" disabled={state.kind === 'sending'} className="w-full rounded-xl bg-gradient-to-br from-[#e7c988] to-[#c69a52] py-3 text-sm font-bold text-[#1a1409] shadow-lg shadow-[#e7c988]/10 transition active:scale-[0.98] disabled:opacity-60">
+                {state.kind === 'sending' ? ph.sending : ph.send}
+              </button>
+              {state.message && (
+                <p role="status" className={`px-1 text-center text-xs ${state.kind === 'error' ? 'text-[#e2aca3]' : 'text-[#a9c4ad]'}`}>
+                  {state.message}
+                </p>
+              )}
+            </form>
+          </section>
+
+          {/* Pie */}
+          <footer className="space-y-3 border-t border-[#2a241b] pb-4 pt-8 text-center text-xs text-[#6f6557]">
+            <button type="button" onClick={() => goTo('app-inicio')} className="rounded-full bg-[#272019] px-5 py-2.5 font-medium text-[#cdbfa6] ring-1 ring-[#3a3227] transition hover:bg-[#2f2820]">
+              {ph.backToTop}
+            </button>
+            <p className="pt-1">© {new Date().getFullYear()} {profile.fullName}</p>
+            <p>{ph.madeWith}</p>
+          </footer>
+        </div>
+      </div>
+
+      {/* Barra de pestañas (celular) */}
+      <nav aria-label={ph.sections} className="absolute inset-x-0 bottom-0 z-20 border-t border-[#2a241b] bg-[#141009]/92 px-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl md:hidden">
+        <ul className="flex justify-around">
+          {tabs.map(tab => {
+            const selected = active === tab.id || (tab.id === 'app-inicio' && active === 'app-sobre-mi') || (tab.id === 'app-proyectos' && active === 'app-testimonios') || (tab.id === 'app-habilidades' && active === 'app-contacto');
+            return (
+              <li key={tab.id}>
+                <button
+                  type="button"
+                  onClick={() => goTo(tab.id)}
+                  aria-current={selected ? 'true' : undefined}
+                  className={`flex w-16 flex-col items-center gap-1 rounded-xl py-1.5 text-[10px] font-medium transition ${
+                    selected ? 'text-[#e7c988]' : 'text-[#7d7362]'
+                  }`}
+                >
+                  <span className={`grid h-7 w-12 place-items-center rounded-full transition ${selected ? 'bg-[#e7c988]/12' : ''}`}>
+                    <svg viewBox="0 0 24 24" className="size-[21px] fill-current" aria-hidden="true">
+                      <path d={tab.icon} />
+                    </svg>
+                  </span>
+                  {ph.tabs[tab.key]}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
     </div>
   );
 }
