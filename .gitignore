@@ -1,4 +1,14 @@
 node_modules/
+.next/
+out/
 dist/
 .local/
 *.log
+next-env.d.ts
+*.tsbuildinfo
+.vercel
+.claude/
+
+# Archivos de trabajo pesados (no se publican)
+Nature/
+blender/
