@@ -1,0 +1,142 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-night: #100e0a;
+  --color-ember: #17120c;
+  --color-paper: #ece0c4;
+  --color-paper-deep: #e2d3b1;
+  --color-ink: #36291c;
+  --color-ink-muted: #7d694f;
+  --color-oxblood: #7c392c;
+  --color-gold: #bea175;
+  --color-gold-light: #d8b989;
+  --color-parchment: #eadcc3;
+  --color-smoke: #ab9c84;
+
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-caps: 'Cinzel', Georgia, serif;
+  --font-body: 'EB Garamond', Georgia, serif;
+}
+
+@layer base {
+  html {
+    background: var(--color-night);
+  }
+  /* La página no se desplaza: la portada es la escena 3D y el contenido se lee dentro del libro. */
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+  body {
+    font-family: var(--font-body);
+    /* Oscuro, como la escena: si el navegador deja ver algo detrás del 3D, no aparece una franja clara. */
+    background: var(--color-night);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  section[id] {
+    scroll-margin-top: 4.5rem;
+  }
+  ::selection {
+    background: #a4804960;
+    color: #24170e;
+  }
+  :focus-visible {
+    outline: 1px solid var(--color-oxblood);
+    outline-offset: 5px;
+  }
+}
+
+@utility paper-texture {
+  background-color: var(--color-paper);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='.07'/%3E%3C/svg%3E");
+}
+
+@utility film-grain {
+  pointer-events: none;
+  opacity: 0.055;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.88' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23fff' filter='url(%23n)' opacity='.6' d='M0 0h180v180H0z'/%3E%3C/svg%3E");
+}
+
+/* ---------- Libro paginado (escritorio) ----------
+   Cada sección es una hoja. Las hojas ya leídas giran sobre el lomo (borde izquierdo);
+   la siguiente espera debajo de la actual. En celular no se aplica: se lee con scroll. */
+[data-paged] {
+  overflow: hidden !important;
+}
+[data-paged] main {
+  display: contents;
+}
+[data-paged] [data-page] {
+  position: absolute;
+  inset: 4rem 0 3.5rem 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  justify-content: safe center;
+  transform-origin: left center;
+  backface-visibility: hidden;
+  box-shadow: inset 28px 0 36px -28px #36291c66;
+  transition:
+    transform 0.9s cubic-bezier(0.645, 0.045, 0.355, 1),
+    filter 0.9s ease,
+    visibility 0s;
+}
+[data-paged] main > section[data-page] {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+[data-paged] #inicio {
+  background-color: var(--color-paper);
+}
+[data-paged] [data-page='current'] {
+  transform: perspective(4000px) rotateY(0deg);
+  z-index: 3;
+  visibility: visible;
+}
+[data-paged] [data-page='under'] {
+  transform: perspective(4000px) rotateY(0deg);
+  z-index: 2;
+  visibility: visible;
+  filter: brightness(0.92);
+}
+[data-paged] [data-page='flipped'] {
+  transform: perspective(4000px) rotateY(-112deg);
+  z-index: 4;
+  visibility: hidden;
+  filter: brightness(0.65);
+  transition-delay: 0s, 0s, 0.9s;
+}
+[data-paged] [data-page='hidden'] {
+  transform: perspective(4000px) rotateY(0deg);
+  z-index: 1;
+  visibility: hidden;
+}
+[data-paged][data-instant] [data-page] {
+  transition: none !important;
+}
+[data-paged][data-dragging] {
+  cursor: grabbing;
+  user-select: none;
+}
+
+@keyframes breathe {
+  50% {
+    opacity: 0.3;
+    transform: scale(0.9);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
