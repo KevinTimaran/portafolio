@@ -5,12 +5,14 @@ import { navLinks, profile, socialLinks } from '@/data/profile';
 import { useLanguage } from '@/lib/i18n';
 import LanguageToggle from './LanguageToggle';
 import SocialIcon from './SocialIcon';
+import { useIntro } from './CodexIntro';
 
 /** Barra fija arriba: logo, idioma y un botón que abre un menú a pantalla completa. */
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<string>('inicio');
   const { t, ui } = useLanguage();
+  const { backToFire } = useIntro();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -48,6 +50,18 @@ export default function Navbar() {
             {'/>'}
           </a>
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                backToFire();
+              }}
+              title={ui.nav.backToFire}
+              aria-label={ui.nav.backToFire}
+              className="grid size-11 place-items-center rounded-full bg-surface text-lg ring-1 ring-line transition hover:ring-violet/60"
+            >
+              <span aria-hidden="true">🔥</span>
+            </button>
             <LanguageToggle className="text-ink-dim [&_[aria-pressed=true]]:text-violet-light" />
             <a
               href={profile.cvUrl}

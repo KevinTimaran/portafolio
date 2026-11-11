@@ -8,23 +8,26 @@ import Projects from '@/components/Projects';
 import Testimonials from '@/components/Testimonials';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
+import CodexIntro from '@/components/CodexIntro';
 import { LanguageProvider } from '@/lib/i18n';
 
 export default function Home() {
   return (
     <LanguageProvider>
-      <Navbar />
-      <main>
-        <Hero />
-        <WhatIDo />
-        <About />
-        <Stack />
-        <Experience />
-        <Projects />
-        <Testimonials />
-        <Contact />
-      </main>
-      <Footer />
+      <CodexIntro>
+        <Navbar />
+        <main>
+          <Hero />
+          <WhatIDo />
+          <About />
+          <Stack />
+          <Experience />
+          <Projects />
+          <Testimonials />
+          <Contact />
+        </main>
+        <Footer />
+      </CodexIntro>
     </LanguageProvider>
   );
 }
