@@ -1,4 +1,7 @@
+'use client';
+
 import { navLinks, profile, socialLinks } from '@/data/profile';
+import { useLanguage } from '@/lib/i18n';
 
 const icons: Record<string, React.ReactNode> = {
   GitHub: (
@@ -11,6 +14,7 @@ const icons: Record<string, React.ReactNode> = {
 };
 
 export default function Footer() {
+  const { t, ui } = useLanguage();
   const year = new Date().getFullYear();
   const links = [...socialLinks, ...(profile.email ? [{ label: 'Correo' as const, url: `mailto:${profile.email}` }] : [])].filter(link => link.url);
 
@@ -22,7 +26,7 @@ export default function Footer() {
             K<span className="text-3xl">B</span>
           </p>
           <p className="mt-4 font-display text-2xl text-parchment">{profile.fullName}</p>
-          <p className="text-sm">{profile.role}</p>
+          <p className="text-sm">{t(profile.role)}</p>
           <ul className="mt-5 flex gap-3">
             {links.map(link => (
               <li key={link.label}>
@@ -42,13 +46,13 @@ export default function Footer() {
           </ul>
         </div>
 
-        <nav aria-label="Enlaces rápidos">
-          <p className="font-caps text-[10px] tracking-[2.5px] text-gold">Índice</p>
+        <nav aria-label={ui.footer.quickLinks}>
+          <p className="font-caps text-[10px] tracking-[2.5px] text-gold">{ui.footer.index}</p>
           <ul className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2">
             {navLinks.map(link => (
               <li key={link.id}>
                 <a href={`#${link.id}`} className="transition hover:text-parchment">
-                  {link.label}
+                  {t(link.label)}
                 </a>
               </li>
             ))}
@@ -59,15 +63,15 @@ export default function Footer() {
           href="#inicio"
           className="inline-flex items-center gap-2 self-start rounded-sm border border-gold/40 px-5 py-3 font-caps text-[10px] tracking-[2px] text-parchment transition hover:bg-gold/10"
         >
-          Volver arriba <span aria-hidden="true">↑</span>
+          {ui.footer.backToTop} <span aria-hidden="true">↑</span>
         </a>
       </div>
 
       <div className="mx-auto mt-14 flex max-w-6xl flex-col gap-2 border-t border-gold/15 pt-6 text-sm sm:flex-row sm:justify-between">
         <p>
-          © {year} {profile.fullName}. Todos los derechos reservados.
+          © {year} {profile.fullName}. {ui.footer.rights}
         </p>
-        <p>Hecho con Next.js, TypeScript y Tailwind CSS · Escena en Three.js</p>
+        <p>{ui.footer.madeWith}</p>
       </div>
     </footer>
   );

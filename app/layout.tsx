@@ -4,7 +4,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: `${profile.fullName} · Portafolio`,
-  description: `Portafolio de ${profile.fullName}: ${profile.role}. Un libro, una fogata y una historia por descubrir.`,
+  description: `Portafolio de ${profile.fullName}: desarrollador Full Stack · Backend, IA y experiencias web. Portfolio in Spanish and English.`,
   icons: { icon: '/favicon.svg' },
 };
 

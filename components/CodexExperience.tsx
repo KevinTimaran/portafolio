@@ -1,14 +1,15 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { ExperienceHandle } from '@/lib/scene/experience';
+import type { AnnounceKey, ExperienceHandle } from '@/lib/scene/experience';
+import { useLanguage } from '@/lib/i18n';
+import LanguageToggle from './LanguageToggle';
 import { ReaderContext } from './ReaderContext';
 import SoundToggle from './SoundToggle';
 import PhoneApp from './PhoneApp';
 import { useBookPages } from './useBookPages';
-import { navLinks } from '@/data/profile';
+import { navLinks, profile } from '@/data/profile';
 
-const pageNames: Record<string, string> = { ...Object.fromEntries(navLinks.map(l => [l.id, l.label])), colofon: 'Colofón' };
 const roman = (n: number) =>
   [['X', 10], ['IX', 9], ['V', 5], ['IV', 4], ['I', 1]].reduce((out, [r, v]) => {
     let acc = out;
@@ -43,7 +44,10 @@ export default function CodexExperience({ children }: { children: React.ReactNod
   const hotspots = useRef<Record<Target, HTMLDivElement | null>>({ book: null, radio: null, phone: null });
   const handle = useRef<ExperienceHandle | null>(null);
   const [status, setStatus] = useState<Status>('loading');
-  const [message, setMessage] = useState('');
+  const { t, ui } = useLanguage();
+  const [announcement, setAnnouncement] = useState<AnnounceKey | null>(null);
+  const message = announcement ? ui.scene.announce[announcement] : '';
+  const pageNames: Record<string, string> = { ...Object.fromEntries(navLinks.map(l => [l.id, t(l.label)])), colofon: ui.reader.colophon };
   const [open, setOpen] = useState(false);
   const [section, setSection] = useState<string>('inicio');
   // Abierto con el libro: se pasan hojas. Abierto con el móvil: se hace scroll, como en un teléfono.
@@ -71,7 +75,7 @@ export default function CodexExperience({ children }: { children: React.ReactNod
         root,
         hotspots: { book, radio, phone },
         onStatus: setStatus,
-        onAnnounce: setMessage,
+        onAnnounce: setAnnouncement,
         onOpen: how => showReader('inicio', how),
       });
     });
@@ -112,19 +116,19 @@ export default function CodexExperience({ children }: { children: React.ReactNod
   return (
     <ReaderContext.Provider value={{ close }}>
       {/* ---------- Paisaje 3D ---------- */}
-      <div ref={rootRef} className="fixed inset-0 overflow-hidden bg-night text-parchment" aria-hidden={open}>
+      <div ref={rootRef} className="group/scene fixed inset-0 overflow-hidden bg-night text-parchment" aria-hidden={open}>
         <canvas
           ref={canvasRef}
           tabIndex={0}
           className="block size-full touch-none outline-none"
-          aria-label="Bosque nocturno con una fogata. Junto a ti hay un libro antiguo, una radio y un móvil. Pulsa el libro (o Enter) para abrir el portafolio."
+          aria-label={ui.scene.canvas}
         />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_51%_55%,transparent_30%,#0b090539_70%,#090704ac_100%),linear-gradient(#0b09052b,transparent_30%,transparent_75%,#09070491)]" />
         <div className="film-grain absolute inset-0" />
 
-        <Hotspot label="El libro" refCallback={el => { hotspots.current.book = el; }} />
-        <Hotspot label="La radio" refCallback={el => { hotspots.current.radio = el; }} />
-        <Hotspot label="El móvil" refCallback={el => { hotspots.current.phone = el; }} />
+        <Hotspot label={ui.scene.book} refCallback={el => { hotspots.current.book = el; }} />
+        <Hotspot label={ui.scene.radio} refCallback={el => { hotspots.current.radio = el; }} />
+        <Hotspot label={ui.scene.phone} refCallback={el => { hotspots.current.phone = el; }} />
 
         <header className="pointer-events-none absolute inset-x-[4.2%] top-6 flex items-center justify-between sm:top-8">
           <span className="flex items-center gap-4 font-caps text-[9px] leading-[1.9] tracking-[2px] text-[#d2c0a0]">
@@ -137,7 +141,8 @@ export default function CodexExperience({ children }: { children: React.ReactNod
               BUESAQUILLO TIMARÁN
             </span>
           </span>
-          <span className="pointer-events-auto text-[#cbb38e]">
+          <span className="pointer-events-auto flex items-center gap-2 text-[#cbb38e]">
+            <LanguageToggle />
             <SoundToggle />
           </span>
         </header>
@@ -145,23 +150,40 @@ export default function CodexExperience({ children }: { children: React.ReactNod
         <div className="pointer-events-none absolute inset-x-0 bottom-6 px-4 text-center text-xs tracking-wide text-smoke">
           {status === 'loading' && (
             <span className="inline-flex items-center gap-2">
-              <span className="inline-block animate-[breathe_2s_ease-in-out_infinite] text-gold">✧</span> Preparando la lumbre…
+              <span className="inline-block animate-[breathe_2s_ease-in-out_infinite] text-gold">✧</span> {ui.scene.loading}
             </span>
           )}
           {status === 'ready' && (
             <>
-              <span className="hidden sm:inline">Mueve el ratón para mirar alrededor · pulsa el libro para abrirlo</span>
-              <span className="sm:hidden">Desliza para girar · toca el libro para abrirlo</span>
+              {/* En celular el libro y el móvil pueden quedar fuera de la vista: botones directos. */}
+              <div className="mb-3 hidden justify-center gap-2.5 group-data-[scene-state=idle]/scene:flex sm:!hidden">
+                <button
+                  type="button"
+                  onClick={() => handle.current?.openBook()}
+                  className="pointer-events-auto rounded-full border border-[#d4b57e]/60 bg-[#100e0a]/70 px-5 py-2.5 font-caps text-[11px] tracking-[2px] text-parchment backdrop-blur-sm transition active:scale-95"
+                >
+                  📖 {ui.scene.openBookButton}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handle.current?.openPhone()}
+                  className="pointer-events-auto rounded-full border border-[#d4b57e]/60 bg-[#100e0a]/70 px-5 py-2.5 font-caps text-[11px] tracking-[2px] text-parchment backdrop-blur-sm transition active:scale-95"
+                >
+                  📱 {ui.scene.openPhoneButton}
+                </button>
+              </div>
+              <span className="hidden sm:inline">{ui.scene.hintDesktop}</span>
+              <span className="sm:hidden">{ui.scene.hintMobile}</span>
             </>
           )}
         </div>
 
         {status === 'fallback' && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-ember p-8 text-center">
-            <p className="font-display text-4xl">La historia continúa en el papel.</p>
-            <span className="text-smoke">Esta pantalla no pudo iniciar la escena 3D.</span>
+            <p className="font-display text-4xl">{ui.scene.fallbackTitle}</p>
+            <span className="text-smoke">{ui.scene.fallbackText}</span>
             <button type="button" onClick={() => showReader('inicio')} className="border border-gold/60 px-7 py-3 font-caps text-xs tracking-[2px]">
-              Abrir el portafolio
+              {ui.scene.fallbackButton}
             </button>
           </div>
         )}
@@ -177,7 +199,7 @@ export default function CodexExperience({ children }: { children: React.ReactNod
         id="libro"
         role="dialog"
         aria-modal="true"
-        aria-label="Portafolio de Kevin Stiven Buesaquillo Timarán"
+        aria-label={ui.reader.dialog(profile.fullName)}
         tabIndex={-1}
         inert={!open || mode !== 'book'}
         className={`paper-texture fixed inset-0 z-40 overflow-y-auto overscroll-contain scroll-smooth outline-none transition-opacity duration-700 ${
@@ -195,15 +217,15 @@ export default function CodexExperience({ children }: { children: React.ReactNod
               disabled={book.page === 0}
               className="flex items-center gap-2 py-2 text-[15px] transition hover:text-oxblood disabled:opacity-25"
             >
-              <span aria-hidden="true">←</span> Hoja anterior
+              <span aria-hidden="true">←</span> {ui.reader.previous}
             </button>
             <p className="text-center" aria-live="polite" aria-atomic="true">
               <span className="font-caps text-[11px] tracking-[2.5px] text-ink-muted">
-                Folio {roman(book.page + 1)} <i className="font-body normal-case italic tracking-normal">de</i> {roman(book.count)}
+                {ui.reader.folio} {roman(book.page + 1)} <i className="font-body normal-case italic tracking-normal">{ui.reader.of}</i> {roman(book.count)}
               </span>
               <span className="mx-3 text-gold" aria-hidden="true">✧</span>
               <span className="font-display text-lg italic">{pageNames[book.ids[book.page]] ?? ''}</span>
-              <span className="ml-4 hidden text-xs italic text-ink-muted xl:inline">arrastra la hoja, usa la rueda o las flechas ← →</span>
+              <span className="ml-4 hidden text-xs italic text-ink-muted xl:inline">{ui.reader.hint}</span>
             </p>
             <button
               type="button"
@@ -211,7 +233,7 @@ export default function CodexExperience({ children }: { children: React.ReactNod
               disabled={book.page >= book.count - 1}
               className="flex items-center gap-2 py-2 text-[15px] transition hover:text-oxblood disabled:opacity-25"
             >
-              Pasar la hoja <span aria-hidden="true">→</span>
+              {ui.reader.next} <span aria-hidden="true">→</span>
             </button>
           </div>
         )}

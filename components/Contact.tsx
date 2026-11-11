@@ -2,6 +2,7 @@
 
 import { useContactForm } from '@/lib/useContactForm';
 import { profile, socialLinks } from '@/data/profile';
+import { useLanguage } from '@/lib/i18n';
 import SectionHeading from './SectionHeading';
 
 const inputClass =
@@ -9,6 +10,8 @@ const inputClass =
 
 export default function Contact() {
   const { state, handleSubmit } = useContactForm();
+  const { ui } = useLanguage();
+  const c = ui.contact;
 
   return (
     <section id="contacto" className="relative overflow-hidden bg-ember px-4 py-24 text-parchment sm:px-8 md:py-32">
@@ -18,28 +21,24 @@ export default function Contact() {
           <SectionHeading
             light
             numeral="V"
-            eyebrow="Contacto"
-            title={
-              <>
-                Las buenas ideas comienzan con <em className="!text-gold-light">una conversación.</em>
-              </>
-            }
-            description="Si una de estas páginas despertó una idea, tal vez podamos escribir la siguiente juntos."
+            eyebrow={c.eyebrow}
+            title={c.title}
+            description={c.description}
           />
           <ul className="space-y-4 text-lg">
             <li>
-              <span className="block font-caps text-[10px] tracking-[2.5px] text-gold">Correo</span>
+              <span className="block font-caps text-[10px] tracking-[2.5px] text-gold">{c.email}</span>
               {profile.email ? (
                 <a href={`mailto:${profile.email}`} className="font-display text-2xl hover:text-gold-light">
                   {profile.email}
                 </a>
               ) : (
-                <span className="text-smoke">Por completar en data/profile.ts</span>
+                <span className="text-smoke">{c.pending}</span>
               )}
             </li>
             {profile.phone && (
               <li>
-                <span className="block font-caps text-[10px] tracking-[2.5px] text-gold">Teléfono / WhatsApp</span>
+                <span className="block font-caps text-[10px] tracking-[2.5px] text-gold">{c.phone}</span>
                 <a href={`https://wa.me/${profile.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="font-display text-2xl hover:text-gold-light">
                   {profile.phone}
                 </a>
@@ -53,7 +52,7 @@ export default function Contact() {
                     {link.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')} ↗
                   </a>
                 ) : (
-                  <span className="text-smoke">Por completar en data/profile.ts</span>
+                  <span className="text-smoke">{c.pending}</span>
                 )}
               </li>
             ))}
@@ -63,28 +62,28 @@ export default function Contact() {
         <form onSubmit={handleSubmit} className="space-y-5 border border-gold/20 bg-night/30 p-6 backdrop-blur-sm sm:p-8">
           <div>
             <label htmlFor="nombre" className="mb-2 block font-caps text-[10px] tracking-[2.5px] text-gold">
-              Nombre
+              {c.name}
             </label>
-            <input id="nombre" name="nombre" required autoComplete="name" placeholder="Tu nombre" className={inputClass} />
+            <input id="nombre" name="nombre" required autoComplete="name" placeholder={c.namePlaceholder} className={inputClass} />
           </div>
           <div>
             <label htmlFor="email" className="mb-2 block font-caps text-[10px] tracking-[2.5px] text-gold">
-              Correo
+              {c.email}
             </label>
-            <input id="email" name="email" type="email" required autoComplete="email" placeholder="tu@correo.com" className={inputClass} />
+            <input id="email" name="email" type="email" required autoComplete="email" placeholder={c.emailPlaceholder} className={inputClass} />
           </div>
           <div>
             <label htmlFor="mensaje" className="mb-2 block font-caps text-[10px] tracking-[2.5px] text-gold">
-              Mensaje
+              {c.message}
             </label>
-            <textarea id="mensaje" name="mensaje" required minLength={10} rows={5} placeholder="Cuéntame tu idea…" className={`${inputClass} resize-y`} />
+            <textarea id="mensaje" name="mensaje" required minLength={10} rows={5} placeholder={c.messagePlaceholder} className={`${inputClass} resize-y`} />
           </div>
           <button
             type="submit"
             disabled={state.kind === 'sending'}
             className="w-full rounded-sm bg-gold py-3.5 font-caps text-xs tracking-[2.5px] text-night transition hover:bg-gold-light disabled:opacity-60"
           >
-            {state.kind === 'sending' ? 'Enviando…' : 'Enviar mensaje ↗'}
+            {state.kind === 'sending' ? c.sending : c.send}
           </button>
           <p role="status" aria-live="polite" className={`min-h-6 text-center ${state.kind === 'error' ? 'text-[#e79a7c]' : 'text-gold-light'}`}>
             {state.message}

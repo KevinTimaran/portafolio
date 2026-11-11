@@ -12,3 +12,7 @@ next-env.d.ts
 # Archivos de trabajo pesados (no se publican)
 Nature/
 blender/
+
+# Material de referencia local (no se publica)
+Ejemplo 3D.html
+reference-readable.txt

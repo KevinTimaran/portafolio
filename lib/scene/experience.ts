@@ -11,6 +11,7 @@ import { getAmbience } from './ambience';
 
 type State = 'loading' | 'idle' | 'reaching' | 'opening' | 'reading' | 'closing' | 'fallback';
 type Target = 'book' | 'radio' | 'phone';
+export type AnnounceKey = 'ready' | 'grabBook' | 'grabPhone' | 'openPhone' | 'openBook' | 'backToFire' | 'bookRests' | 'radioOn' | 'radioOff';
 
 export interface ExperienceOptions {
   canvas: HTMLCanvasElement;
@@ -18,7 +19,8 @@ export interface ExperienceOptions {
   root: HTMLElement;
   hotspots: Record<Target, HTMLElement>;
   onStatus(status: 'loading' | 'ready' | 'fallback'): void;
-  onAnnounce(message: string): void;
+  /** Clave del mensaje para lectores de pantalla; el texto se traduce en la interfaz. */
+  onAnnounce(message: AnnounceKey): void;
   /** El libro (o el móvil) quedó abierto: hay que mostrar el portafolio. */
   onOpen(mode: 'book' | 'phone'): void;
 }
@@ -26,6 +28,8 @@ export interface ExperienceOptions {
 export interface ExperienceHandle {
   /** Toma el libro y lo abre. */
   openBook(): void;
+  /** Toma el móvil y abre el portafolio en su pantalla. */
+  openPhone(): void;
   /** Cierra el libro y vuelve al paisaje. */
   close(): void;
   dispose(): void;
@@ -99,7 +103,7 @@ export function createExperience(options: ExperienceOptions): ExperienceHandle {
     setState('reading');
     sound.setReading(true);
     onOpen(mode);
-    onAnnounce(mode === 'phone' ? 'El portafolio se abre en la pantalla del móvil.' : 'El libro está abierto. Sus páginas son el portafolio.');
+    onAnnounce(mode === 'phone' ? 'openPhone' : 'openBook');
   }
 
   /** Cierra el portafolio: la cámara regresa al fuego y el libro vuelve al tocón. */
@@ -109,7 +113,7 @@ export function createExperience(options: ExperienceOptions): ExperienceHandle {
     sound.setReading(false);
     if (readingMode === 'phone') {
       const d = duration(1);
-      timeline = gsap.timeline({ onComplete() { setState('idle'); onAnnounce('Vuelves junto a la fogata.'); } });
+      timeline = gsap.timeline({ onComplete() { setState('idle'); onAnnounce('backToFire'); } });
       timeline
         .to(camera.position, { x: baseCamera.x, y: baseCamera.y, z: baseCamera.z, duration: 1.3 * d, ease: 'power3.inOut' }, 0)
         .to(lookTarget, { x: narrow() ? -0.1 : 0, y: 0.86, z: 0, duration: 1.3 * d, ease: 'power3.inOut' }, 0);
@@ -119,7 +123,7 @@ export function createExperience(options: ExperienceOptions): ExperienceHandle {
     const d = duration(1);
     const b = book;
     const h = hands;
-    timeline = gsap.timeline({ onComplete() { h.group.visible = false; setState('idle'); onAnnounce('El libro descansa de nuevo junto al fuego.'); } });
+    timeline = gsap.timeline({ onComplete() { h.group.visible = false; setState('idle'); onAnnounce('bookRests'); } });
     timeline
       .to(camera.position, { x: baseCamera.x, y: baseCamera.y, z: baseCamera.z, duration: 1.3 * d, ease: 'power3.inOut' }, 0)
       .to(lookTarget, { x: heldPosition.x, y: heldPosition.y, z: 0, duration: 1.3 * d, ease: 'power3.inOut' }, 0)
@@ -139,7 +143,7 @@ export function createExperience(options: ExperienceOptions): ExperienceHandle {
     const h = hands;
     const cam = camera;
     setState('reaching');
-    onAnnounce('Recoges el libro y lo abres.');
+    onAnnounce('grabBook');
     h.group.visible = true;
     const d = duration(0.62);
     const o = duration(1);
@@ -166,7 +170,7 @@ export function createExperience(options: ExperienceOptions): ExperienceHandle {
   function openPhone() {
     if (state !== 'idle' || !environment || !camera) return;
     setState('opening');
-    onAnnounce('Tomas el móvil: te llevamos a la sección de contacto.');
+    onAnnounce('grabPhone');
     const target = environment.props.phonePoint();
     const d = duration(1);
     timeline = gsap.timeline({ onComplete() { enterReading('phone'); } });
@@ -180,7 +184,7 @@ export function createExperience(options: ExperienceOptions): ExperienceHandle {
     if (!environment) return;
     const on = await sound.toggleJazz();
     environment.props.setRadioOn(on);
-    onAnnounce(on ? 'La radio suena: jazz suave junto al fuego.' : 'Apagas la radio.');
+    onAnnounce(on ? 'radioOn' : 'radioOff');
   }
 
   function resize() {
@@ -236,8 +240,9 @@ export function createExperience(options: ExperienceOptions): ExperienceHandle {
       if (!pointerDown) return;
       pointer.set(
         // En táctil la mirada se queda donde la dejaste, para poder tocar el libro o el móvil.
-        THREE.MathUtils.clamp(pointerDown.px + (event.clientX - pointerDown.x) / 160, -1, 1),
-        THREE.MathUtils.clamp(pointerDown.py + (event.clientY - pointerDown.y) / 200, -1, 1),
+        // Deslizar hacia la izquierda gira hacia la derecha, como al arrastrar el paisaje.
+        THREE.MathUtils.clamp(pointerDown.px - (event.clientX - pointerDown.x) / (width() * 1.3), -1, 1),
+        THREE.MathUtils.clamp(pointerDown.py - (event.clientY - pointerDown.y) / (height() * 0.5), -1, 1),
       );
     } else {
       const p = ndc(event);
@@ -330,7 +335,8 @@ export function createExperience(options: ExperienceOptions): ExperienceHandle {
       const still = reducedMotion.matches;
       const lookUp = still ? 0 : Math.pow(Math.max(0, -gaze.y), 1.4) * 1.15;
       const lookDown = still ? 0 : Math.max(0, gaze.y) * 0.2;
-      const yaw = still ? 0 : -gaze.x * 0.8;
+      // En vertical el campo de visión horizontal es estrecho: se permite girar más para alcanzar el libro y el móvil.
+      const yaw = still ? 0 : -gaze.x * (narrow() ? 1.6 : 0.8);
       sightDirection.copy(lookTarget).sub(camera.position);
       sightDirection.y += still ? 0 : Math.sin(elapsed * 0.65) * 0.009;
       sightDirection.applyAxisAngle(WORLD_UP, yaw);
@@ -400,7 +406,7 @@ export function createExperience(options: ExperienceOptions): ExperienceHandle {
       if (disposed) return;
       setState('idle');
       onStatus('ready');
-      onAnnounce('Escena lista. El libro está a tu derecha; también hay una radio y un móvil.');
+      onAnnounce('ready');
       frameId = requestAnimationFrame(animate);
     } catch (error) {
       if (disposed) return;
@@ -414,6 +420,7 @@ export function createExperience(options: ExperienceOptions): ExperienceHandle {
 
   return {
     openBook: grabBook,
+    openPhone,
     close,
     dispose() {
       disposed = true;

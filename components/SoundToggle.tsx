@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { getAmbience } from '@/lib/scene/ambience';
+import { useLanguage } from '@/lib/i18n';
 
 const EVENT = 'codex-sound-change';
 
 /** Botón de sonido. Hay uno en el paisaje y otro en el libro; ambos se mantienen sincronizados. */
 export default function SoundToggle() {
   const [enabled, setEnabled] = useState(false);
+  const { ui } = useLanguage();
 
   useEffect(() => {
     const sync = (event: Event) => setEnabled((event as CustomEvent<boolean>).detail);
@@ -25,8 +27,8 @@ export default function SoundToggle() {
       type="button"
       onClick={toggle}
       aria-pressed={enabled}
-      aria-label={enabled ? 'Silenciar el sonido de la fogata' : 'Activar el sonido de la fogata'}
-      title={enabled ? 'Silenciar sonido' : 'Activar sonido'}
+      aria-label={enabled ? ui.sound.on : ui.sound.off}
+      title={enabled ? ui.sound.onShort : ui.sound.offShort}
       className="grid size-10 place-items-center opacity-80 transition hover:opacity-100"
     >
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="size-[22px]" aria-hidden="true">

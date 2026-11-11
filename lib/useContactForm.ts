@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import { profile } from '@/data/profile';
+import { useLanguage } from '@/lib/i18n';
 
 export type ContactState = { kind: 'idle' | 'sending' | 'sent' | 'error'; message?: string };
 
@@ -11,6 +12,8 @@ export type ContactState = { kind: 'idle' | 'sending' | 'sent' | 'error'; messag
  */
 export function useContactForm() {
   const [state, setState] = useState<ContactState>({ kind: 'idle' });
+  const { ui } = useLanguage();
+  const f = ui.form;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -20,7 +23,7 @@ export function useContactForm() {
     const email = String(data.get('email') ?? '').trim();
     const message = String(data.get('mensaje') ?? '').trim();
     if (!name || !email || !message) {
-      setState({ kind: 'error', message: 'Completa tu nombre, tu correo y el mensaje.' });
+      setState({ kind: 'error', message: f.missing });
       return;
     }
 
@@ -34,23 +37,23 @@ export function useContactForm() {
         });
         if (!response.ok) throw new Error(String(response.status));
         form.reset();
-        setState({ kind: 'sent', message: `¡Gracias, ${name}! Tu mensaje llegó. Te responderé pronto.` });
+        setState({ kind: 'sent', message: f.sent(name) });
       } catch {
-        setState({ kind: 'error', message: 'No se pudo enviar el mensaje. Inténtalo de nuevo en un momento.' });
+        setState({ kind: 'error', message: f.failed });
       }
       return;
     }
 
     if (profile.email) {
-      const subject = encodeURIComponent(`Mensaje desde el portafolio · ${name}`);
+      const subject = encodeURIComponent(f.subject(name));
       const body = encodeURIComponent(`${message}\n\n— ${name} (${email})`);
       window.location.href = `mailto:${profile.email}?subject=${subject}&body=${body}`;
       form.reset();
-      setState({ kind: 'sent', message: `¡Gracias, ${name}! Se abrió tu aplicación de correo con el mensaje listo para enviar.` });
+      setState({ kind: 'sent', message: f.mailOpened(name) });
       return;
     }
 
-    setState({ kind: 'error', message: 'El formulario todavía no está conectado (falta el correo o el ID de Formspree en data/profile.ts).' });
+    setState({ kind: 'error', message: f.notConnected });
   }
 
   return { state, handleSubmit };

@@ -4,11 +4,14 @@ import { useEffect, useState } from 'react';
 import { navLinks, profile } from '@/data/profile';
 import { useReader } from './ReaderContext';
 import SoundToggle from './SoundToggle';
+import LanguageToggle from './LanguageToggle';
+import { useLanguage } from '@/lib/i18n';
 import { PAGE_EVENT } from './useBookPages';
 
 /** Menú del libro: fijo arriba mientras se recorren las páginas. */
 export default function Navbar() {
   const { close } = useReader();
+  const { t, ui } = useLanguage();
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<string>('inicio');
 
@@ -40,8 +43,8 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-ink/10 bg-paper/90 text-ink shadow-sm backdrop-blur-md">
-      <nav aria-label="Índice del libro" className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-8">
-        <a href="#inicio" onClick={() => setOpen(false)} className="flex items-center gap-3" aria-label={`${profile.fullName}, ir al inicio`}>
+      <nav aria-label={ui.nav.label} className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-8">
+        <a href="#inicio" onClick={() => setOpen(false)} className="flex items-center gap-3" aria-label={ui.nav.home(profile.fullName)}>
           <span className="pr-1.5 font-display text-3xl leading-none tracking-[-6px] text-oxblood">
             K<span className="text-2xl">B</span>
           </span>
@@ -60,34 +63,35 @@ export default function Navbar() {
                 aria-current={active === link.id ? 'true' : undefined}
                 className="relative py-2 text-[15px] transition-colors after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform hover:text-oxblood hover:after:scale-x-100 aria-[current]:text-oxblood aria-[current]:after:scale-x-100"
               >
-                {link.label}
+                {t(link.label)}
               </a>
             </li>
           ))}
         </ul>
 
         <div className="flex items-center gap-1 sm:gap-2">
+          <LanguageToggle className="text-ink-muted [&_[aria-pressed=true]]:text-oxblood" />
           <SoundToggle />
           <a
             href={profile.cvUrl}
             download
             className="hidden rounded-sm border border-oxblood/50 px-4 py-2 font-caps text-[10px] tracking-[2px] text-oxblood transition hover:bg-oxblood hover:text-paper sm:inline-block"
           >
-            CV ↓
+            {ui.nav.cv}
           </a>
           <button
             type="button"
             onClick={close}
             className="hidden whitespace-nowrap px-3 py-2 text-sm italic text-ink-muted transition hover:text-oxblood sm:block"
           >
-            Cerrar el libro ↗
+            {ui.nav.closeBook}
           </button>
           <button
             type="button"
             className="grid size-10 place-items-center lg:hidden"
             aria-expanded={open}
             aria-controls="menu-movil"
-            aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
+            aria-label={open ? ui.nav.closeMenu : ui.nav.openMenu}
             onClick={() => setOpen(value => !value)}
           >
             <span className="relative block h-3.5 w-6">
@@ -109,16 +113,16 @@ export default function Navbar() {
                 className="block border-b border-ink/5 py-3 font-display text-xl aria-[current]:text-oxblood"
                 aria-current={active === link.id ? 'true' : undefined}
               >
-                {link.label}
+                {t(link.label)}
               </a>
             </li>
           ))}
           <li className="flex flex-wrap items-center gap-4 pt-4">
             <a href={profile.cvUrl} download className="inline-block rounded-sm bg-oxblood px-5 py-3 font-caps text-xs tracking-[2px] text-paper">
-              Descargar CV ↓
+              {ui.nav.downloadCv}
             </a>
             <button type="button" onClick={() => { setOpen(false); close(); }} className="py-3 italic text-ink-muted">
-              Cerrar el libro y volver al fuego ↗
+              {ui.nav.closeBookLong}
             </button>
           </li>
         </ul>

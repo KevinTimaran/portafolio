@@ -1,72 +1,54 @@
-import Image from 'next/image';
+'use client';
+
 import { profile } from '@/data/profile';
+import { useLanguage } from '@/lib/i18n';
 
 /** Primera página del libro: bienvenida con CV. */
 export default function Hero() {
-  return (
-    <section id="inicio" aria-label="Bienvenida" className="px-4 pb-20 pt-16 sm:px-8 md:pb-28 md:pt-24">
-      <div className="mx-auto grid max-w-6xl items-center gap-12 md:grid-cols-[1.35fr_1fr] md:gap-16">
-        <div>
-          <p className="flex items-center gap-3 font-caps text-[11px] tracking-[3px] text-oxblood">
-            <span className="h-px w-8 bg-oxblood/50" />
-            Folio primero · El autor
-          </p>
-          <h1 className="mt-5 font-display text-[clamp(2.8rem,7vw,5.5rem)] leading-[1.02] tracking-tight">
-            {profile.name}
-            <br />
-            <em className="text-oxblood">{profile.surname}</em>
-          </h1>
-          <p className="mt-4 font-caps text-xs tracking-[2.5px] text-ink-muted sm:text-sm">{profile.role}</p>
-          <div className="my-6 h-px w-16 bg-oxblood/40" aria-hidden="true" />
-          <p className="max-w-xl font-display text-2xl italic leading-relaxed">«{profile.tagline}»</p>
-          <ul className="mt-6 flex flex-wrap gap-2" aria-label="Áreas de enfoque">
-            {profile.focus.map(item => (
-              <li key={item} className="rounded-full border border-oxblood/30 px-3 py-1 font-caps text-[10px] tracking-[1.5px] text-oxblood">
-                {item}
-              </li>
-            ))}
-          </ul>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <a
-              href={profile.cvUrl}
-              download
-              className="inline-flex items-center gap-2 rounded-sm bg-oxblood px-6 py-3 font-caps text-xs tracking-[2px] text-paper shadow-md transition hover:bg-ink"
-            >
-              Descargar CV <span aria-hidden="true">↓</span>
-            </a>
-            <a
-              href="#proyectos"
-              className="inline-flex items-center gap-2 rounded-sm border border-ink/30 px-6 py-3 font-caps text-xs tracking-[2px] transition hover:border-oxblood hover:text-oxblood"
-            >
-              Ver proyectos <span aria-hidden="true">↗</span>
-            </a>
-          </div>
-        </div>
+  const { lang, t, ui } = useLanguage();
+  const [open, close] = lang === 'es' ? ['«', '»'] : ['“', '”'];
 
-        <figure className="mx-auto w-full max-w-xs md:max-w-sm">
-          <div className="-rotate-1 border border-ink/20 bg-[#f4ead4] p-3 shadow-[0_20px_50px_-20px_#36291c80]">
-            {profile.portrait ? (
-              <Image
-                src={profile.portrait}
-                alt={`Foto de ${profile.fullName}`}
-                width={600}
-                height={750}
-                priority
-                className="aspect-[4/5] w-full object-cover sepia-[.25]"
-              />
-            ) : (
-              <div className="grid aspect-[4/5] w-full place-items-center border border-dashed border-ink/30 bg-paper-deep/60 text-center">
-                <div>
-                  <span className="block font-display text-6xl text-oxblood/60">{profile.initials}</span>
-                  <span className="mt-3 block font-caps text-[10px] tracking-[2.5px] text-ink-muted">Aquí irá mi foto</span>
-                </div>
-              </div>
-            )}
-          </div>
-          <figcaption className="mt-4 text-center text-sm italic text-ink-muted">
-            <span className="mr-2 font-caps not-italic tracking-[2px]">FIG. I</span> Retrato del autor
-          </figcaption>
-        </figure>
+  return (
+    <section id="inicio" aria-label={ui.hero.label} className="px-4 pb-20 pt-16 sm:px-8 md:pb-28 md:pt-24">
+      <div className="mx-auto max-w-6xl">
+        <p className="flex items-center gap-3 font-caps text-[11px] tracking-[3px] text-oxblood">
+          <span className="h-px w-8 bg-oxblood/50" />
+          {ui.hero.eyebrow}
+        </p>
+        <h1 className="mt-5 font-display text-[clamp(2.8rem,7vw,5.5rem)] leading-[1.02] tracking-tight">
+          {profile.name}
+          <br />
+          <em className="text-oxblood">{profile.surname}</em>
+        </h1>
+        <p className="mt-4 font-caps text-xs tracking-[2.5px] text-ink-muted sm:text-sm">{t(profile.role)}</p>
+        <div className="my-6 h-px w-16 bg-oxblood/40" aria-hidden="true" />
+        <p className="max-w-xl font-display text-2xl italic leading-relaxed">
+          {open}
+          {t(profile.tagline)}
+          {close}
+        </p>
+        <ul className="mt-6 flex flex-wrap gap-2" aria-label={ui.hero.focus}>
+          {profile.focus.map(item => (
+            <li key={t(item)} className="rounded-full border border-oxblood/30 px-3 py-1 font-caps text-[10px] tracking-[1.5px] text-oxblood">
+              {t(item)}
+            </li>
+          ))}
+        </ul>
+        <div className="mt-8 flex flex-wrap gap-3">
+          <a
+            href={profile.cvUrl}
+            download
+            className="inline-flex items-center gap-2 rounded-sm bg-oxblood px-6 py-3 font-caps text-xs tracking-[2px] text-paper shadow-md transition hover:bg-ink"
+          >
+            {ui.hero.downloadCv} <span aria-hidden="true">↓</span>
+          </a>
+          <a
+            href="#proyectos"
+            className="inline-flex items-center gap-2 rounded-sm border border-ink/30 px-6 py-3 font-caps text-xs tracking-[2px] transition hover:border-oxblood hover:text-oxblood"
+          >
+            {ui.hero.seeProjects} <span aria-hidden="true">↗</span>
+          </a>
+        </div>
       </div>
     </section>
   );
