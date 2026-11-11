@@ -10,7 +10,7 @@ function ProjectLink({ href, label, primary = false }: { href: string; label: st
   const { ui } = useLanguage();
   if (!href) {
     return (
-      <span className="rounded-sm border border-dashed border-ink/25 px-4 py-2 text-sm text-ink-muted" title={ui.projects.pendingHint}>
+      <span className="rounded-full border border-dashed border-line px-5 py-2.5 text-sm text-ink-faint" title={ui.projects.pendingHint}>
         {label} · {ui.projects.pending}
       </span>
     );
@@ -20,8 +20,8 @@ function ProjectLink({ href, label, primary = false }: { href: string; label: st
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className={`rounded-sm px-4 py-2 font-caps text-[11px] tracking-[1.5px] transition ${
-        primary ? 'bg-oxblood text-paper hover:bg-ink' : 'border border-ink/30 hover:border-oxblood hover:text-oxblood'
+      className={`rounded-full px-5 py-2.5 text-sm font-bold transition active:scale-95 ${
+        primary ? 'bg-violet text-void hover:bg-violet-light' : 'border border-line text-ink hover:border-violet hover:text-violet-light'
       }`}
     >
       {label} ↗
@@ -29,41 +29,33 @@ function ProjectLink({ href, label, primary = false }: { href: string; label: st
   );
 }
 
-function ProjectCard({ project, index }: { project: Project; index: number }) {
+function ProjectRow({ project, index }: { project: Project; index: number }) {
   const { t, ui } = useLanguage();
   const title = t(project.title);
   return (
-    <article className="group flex flex-col overflow-hidden border border-ink/15 bg-[#f4ead4] shadow-[0_18px_40px_-28px_#36291c] transition hover:-translate-y-1 hover:shadow-[0_26px_50px_-26px_#36291c]">
-      <div className="relative aspect-[16/10] overflow-hidden bg-ember">
-        {project.image ? (
-          <Image
-            src={project.image}
-            alt={ui.projects.screenshot(title)}
-            fill
-            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-            className="object-cover transition duration-700 group-hover:scale-105"
-          />
-        ) : (
-          <div className="grid size-full place-items-center bg-[radial-gradient(circle_at_50%_60%,#5a3a1a,#17120c_70%)] font-display text-6xl text-gold/60">
-            {String(index + 1).padStart(2, '0')}
-          </div>
-        )}
-      </div>
-      <div className="flex flex-1 flex-col p-6">
-        <div className="flex justify-between gap-4 font-caps text-[10px] tracking-[2px] text-ink-muted">
-          <span>{t(project.category)}</span>
-          <span>{project.year}</span>
+    <article className="grid gap-8 border-t border-line py-14 first:border-t-0 first:pt-0 md:grid-cols-[auto_1fr] md:gap-12">
+      <span className="text-6xl font-extrabold leading-none text-ink-faint md:text-7xl">{String(index + 1).padStart(2, '0')}.</span>
+      <div>
+        <div className="relative mb-6 aspect-[16/9] overflow-hidden rounded-2xl bg-surface ring-1 ring-line">
+          {project.image ? (
+            <Image
+              src={project.image}
+              alt={ui.projects.screenshot(title)}
+              fill
+              sizes="(min-width: 768px) 60vw, 100vw"
+              className="object-cover"
+            />
+          ) : (
+            <div className="grid size-full place-items-center text-5xl font-black text-ink-faint/40">{String(index + 1).padStart(2, '0')}</div>
+          )}
         </div>
-        <h3 className="mt-3 font-display text-3xl leading-tight">{title}</h3>
-        <p className="mt-3 flex-1 leading-relaxed text-ink/85">{t(project.description)}</p>
-        <ul className="mt-5 flex flex-wrap gap-1.5" aria-label={ui.projects.tech}>
-          {project.tags.map(tag => (
-            <li key={tag} className="rounded-full bg-ink/8 px-3 py-1 text-xs">
-              {tag}
-            </li>
-          ))}
-        </ul>
-        <div className="mt-6 flex flex-wrap gap-2">
+        <p className="text-sm font-semibold text-violet-light">{project.tags.join(' · ')}</p>
+        <h3 className="mt-2 text-3xl font-extrabold tracking-tight">{title}</h3>
+        <p className="mt-1 text-sm font-semibold uppercase tracking-wide text-ink-faint">
+          {t(project.category)} · {project.year}
+        </p>
+        <p className="mt-4 max-w-2xl text-ink-dim">{t(project.description)}</p>
+        <div className="mt-6 flex flex-wrap gap-2.5">
           <ProjectLink href={project.demo} label={project.demoLabel ? t(project.demoLabel) : ui.projects.demo} primary />
           <ProjectLink href={project.github} label="GitHub" />
         </div>
@@ -75,12 +67,12 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
 export default function Projects() {
   const { ui } = useLanguage();
   return (
-    <section id="proyectos" className="bg-paper-deep px-4 py-24 sm:px-8 md:py-32">
-      <div className="mx-auto max-w-6xl">
-        <SectionHeading numeral="II" eyebrow={ui.projects.eyebrow} title={ui.projects.title} description={ui.projects.description} />
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+    <section id="proyectos" className="border-t border-line px-4 py-24 sm:px-8 md:py-32">
+      <div className="mx-auto max-w-5xl">
+        <SectionHeading index="05" eyebrow={ui.projects.eyebrow} title={ui.projects.title} description={ui.projects.description} />
+        <div>
           {projects.map((project, index) => (
-            <ProjectCard key={project.github || index} project={project} index={index} />
+            <ProjectRow key={project.github || index} project={project} index={index} />
           ))}
         </div>
       </div>

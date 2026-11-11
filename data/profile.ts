@@ -115,10 +115,11 @@ export const interests: Interest[] = [
 
 export const navLinks = [
   { id: 'inicio', label: { es: 'Inicio', en: 'Home' } },
+  { id: 'servicios', label: { es: 'Qué hago', en: 'What I do' } },
   { id: 'sobre-mi', label: { es: 'Sobre mí', en: 'About' } },
+  { id: 'stack', label: { es: 'Stack', en: 'Stack' } },
+  { id: 'experiencia', label: { es: 'Experiencia', en: 'Experience' } },
   { id: 'proyectos', label: { es: 'Proyectos', en: 'Projects' } },
   { id: 'testimonios', label: { es: 'Testimonios', en: 'Testimonials' } },
-  { id: 'experiencia', label: { es: 'Experiencia', en: 'Experience' } },
   { id: 'contacto', label: { es: 'Contacto', en: 'Contact' } },
-  { id: 'habilidades', label: { es: 'Oficio', en: 'Craft' } },
 ] as const;

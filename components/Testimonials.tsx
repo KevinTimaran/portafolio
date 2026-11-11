@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { testimonials } from '@/data/testimonials';
 import { useLanguage } from '@/lib/i18n';
 import SectionHeading from './SectionHeading';
@@ -13,34 +12,39 @@ const initials = (name: string) =>
     .map(word => word[0])
     .join('');
 
+function Stars() {
+  return (
+    <div className="flex gap-0.5 text-violet-light" aria-hidden="true">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <span key={i}>★</span>
+      ))}
+    </div>
+  );
+}
+
 export default function Testimonials() {
   const { t, ui } = useLanguage();
 
   return (
-    <section id="testimonios" className="paper-texture px-4 py-24 sm:px-8 md:py-32">
-      <div className="mx-auto max-w-6xl">
-        <SectionHeading numeral="III" eyebrow={ui.testimonials.eyebrow} title={ui.testimonials.title} description={ui.testimonials.description} />
-        <div className="grid gap-8 md:grid-cols-3">
-          {testimonials.map(testimonial => (
-            <blockquote key={testimonial.name} className="relative flex flex-col border-l-2 border-oxblood/50 bg-[#f4ead4]/70 p-7">
-              <span aria-hidden="true" className="absolute -top-5 left-5 font-display text-7xl leading-none text-oxblood/40">
-                “
-              </span>
-              <p className="flex-1 text-lg italic leading-relaxed">{t(testimonial.text)}</p>
-              <footer className="mt-6 flex items-center gap-4">
-                {testimonial.avatar ? (
-                  <Image src={testimonial.avatar} alt={ui.testimonials.photo(testimonial.name)} width={48} height={48} className="size-12 rounded-full object-cover" />
-                ) : (
-                  <span aria-hidden="true" className="grid size-12 shrink-0 place-items-center rounded-full bg-ink font-caps text-sm text-gold-light">
-                    {initials(testimonial.name) || '✧'}
-                  </span>
-                )}
-                <span>
-                  <cite className="block font-display text-xl not-italic">{testimonial.name}</cite>
-                  <span className="text-sm text-ink-muted">{t(testimonial.role)}</span>
+    <section id="testimonios" className="border-t border-line bg-surface/40 px-4 py-24 sm:px-8 md:py-32">
+      <div className="mx-auto max-w-5xl">
+        <SectionHeading index="06" eyebrow={ui.testimonials.eyebrow} title={ui.testimonials.title} description={ui.testimonials.description} />
+        <div className="grid gap-6 md:grid-cols-3">
+          {testimonials.map(item => (
+            <figure key={item.name} className="relative overflow-hidden rounded-2xl bg-surface p-6 ring-1 ring-line">
+              <span aria-hidden="true" className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-violet to-violet-light" />
+              <Stars />
+              <blockquote className="mt-4 text-[15px] leading-relaxed text-ink-dim">“{t(item.text)}”</blockquote>
+              <figcaption className="mt-6 flex items-center gap-3 border-t border-line pt-4">
+                <span aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-violet-light to-violet-dark text-xs font-bold text-void">
+                  {initials(item.name) || '✦'}
                 </span>
-              </footer>
-            </blockquote>
+                <span className="min-w-0">
+                  <span className="block text-sm font-bold">{item.name}</span>
+                  <span className="block truncate text-xs text-ink-faint">{t(item.role)}</span>
+                </span>
+              </figcaption>
+            </figure>
           ))}
         </div>
       </div>
