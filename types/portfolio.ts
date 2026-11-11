@@ -7,10 +7,19 @@ export interface Profile {
   tagline: string;
   /** Ruta del CV dentro de /public. */
   cvUrl: string;
+  /** Ruta de la foto en /public. Si está vacía se muestra una tarjeta reservada para la foto. */
   portrait: string;
+  /** Etiquetas cortas de enfoque que aparecen en la bienvenida. */
+  focus: string[];
   about: string[];
+  /** Párrafo «Fuera del código». */
+  beyondCode: string;
+  hobbies: string[];
+  books: { title: string; author: string }[];
   facts: { label: string; value: string }[];
   skills: string[];
+  /** Stack agrupado por área. */
+  stack: { group: string; items: string[] }[];
   email: string;
   phone?: string;
   /** ID de Formspree (https://formspree.io). Si está vacío, el formulario abre el correo del visitante. */
@@ -31,6 +40,8 @@ export interface Project {
   tags: string[];
   github: string;
   demo: string;
+  /** Texto del botón de demo (p. ej. «Descargar APK»). Por defecto «Demo en vivo». */
+  demoLabel?: string;
 }
 
 export interface Testimonial {

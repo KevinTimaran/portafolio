@@ -28,24 +28,48 @@ export default function About() {
             ))}
           </dl>
 
-          <h3 className="mt-10 font-caps text-[11px] tracking-[3px] text-oxblood">Habilidades y tecnologías</h3>
-          <ul className="mt-4 flex flex-wrap gap-2">
-            {profile.skills.map(skill => (
-              <li key={skill} className="rounded-full border border-ink/20 bg-paper-deep/60 px-4 py-1.5 text-[15px]">
-                {skill}
+          <h3 className="mt-10 font-caps text-[11px] tracking-[3px] text-oxblood">Mi stack</h3>
+          <div className="mt-4 grid gap-5 sm:grid-cols-2">
+            {profile.stack.map(group => (
+              <div key={group.group}>
+                <p className="font-display text-lg italic">{group.group}</p>
+                <ul className="mt-2 flex flex-wrap gap-2">
+                  {group.items.map(item => (
+                    <li key={item} className="rounded-full border border-ink/20 bg-paper-deep/60 px-3 py-1 text-sm">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          <h3 className="mt-10 font-caps text-[11px] tracking-[3px] text-oxblood">Fuera del código</h3>
+          <p className="mt-3 text-lg leading-relaxed">{profile.beyondCode}</p>
+          <p className="mt-4 font-caps text-[10px] tracking-[2.5px] text-ink-muted">Libros de cabecera</p>
+          <ul className="mt-2 space-y-1">
+            {profile.books.map(book => (
+              <li key={book.title} className="text-lg">
+                <em className="font-display">{book.title}</em> <span className="text-ink-muted">· {book.author}</span>
               </li>
             ))}
           </ul>
         </div>
 
         <aside className="mx-auto flex w-full max-w-xs flex-col items-center border-y border-ink/15 py-10 text-center md:mt-28">
-          <Image
-            src={profile.portrait}
-            alt={`Retrato de ${profile.fullName}`}
-            width={240}
-            height={300}
-            className="h-44 w-36 rounded-[50%] border border-ink/25 object-cover p-1.5 sepia-[.3]"
-          />
+          {profile.portrait ? (
+            <Image
+              src={profile.portrait}
+              alt={`Retrato de ${profile.fullName}`}
+              width={240}
+              height={300}
+              className="h-44 w-36 rounded-[50%] border border-ink/25 object-cover p-1.5 sepia-[.3]"
+            />
+          ) : (
+            <div className="grid h-44 w-36 place-items-center rounded-[50%] border border-dashed border-ink/30 bg-paper-deep/60">
+              <span className="font-caps text-[10px] tracking-[2px] text-ink-muted">Foto<br />próximamente</span>
+            </div>
+          )}
           <span className="mt-6 font-display text-5xl italic text-oxblood/70">I</span>
           <p className="mt-2 font-display text-2xl italic leading-snug">
             Sobre el camino,

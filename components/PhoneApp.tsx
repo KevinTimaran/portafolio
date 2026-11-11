@@ -148,17 +148,30 @@ export default function PhoneApp({ open, onClose }: { open: boolean; onClose(): 
               <section id="app-inicio" className="pt-4 md:pt-8">
                 <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#3a1d0e] via-[#1c1310] to-[#0f0f14] p-6 ring-1 md:p-10 ring-white/10">
                   <div aria-hidden="true" className="absolute -right-10 -top-10 size-44 rounded-full bg-orange-500/30 blur-3xl" />
-                  <Image
-                    src={profile.portrait}
-                    alt={`Foto de ${profile.fullName}`}
-                    width={160}
-                    height={160}
-                    className="relative size-20 rounded-2xl object-cover ring-2 ring-amber-300/70 md:size-28"
-                  />
+                  {profile.portrait ? (
+                    <Image
+                      src={profile.portrait}
+                      alt={`Foto de ${profile.fullName}`}
+                      width={160}
+                      height={160}
+                      className="relative size-20 rounded-2xl object-cover ring-2 ring-amber-300/70 md:size-28"
+                    />
+                  ) : (
+                    <div className="relative grid size-20 place-items-center rounded-2xl border border-dashed border-amber-300/50 bg-white/5 text-center md:size-28">
+                      <span className="text-[10px] font-medium leading-tight text-white/50">Foto<br />próximamente</span>
+                    </div>
+                  )}
                   <p className="relative mt-5 text-sm text-white/60">Hola, soy</p>
                   <h1 className="relative text-[28px] font-extrabold leading-tight tracking-tight md:text-5xl">{profile.fullName}</h1>
                   <p className="relative mt-1 text-sm font-medium text-amber-300">{profile.role}</p>
-                  <p className="relative mt-3 max-w-xl text-[15px] leading-relaxed text-white/75 md:text-lg">{profile.tagline}</p>
+                  <p className="relative mt-3 max-w-xl text-[17px] font-semibold leading-relaxed text-white/85 md:text-xl">“{profile.tagline}”</p>
+                  <div className="relative mt-3 flex flex-wrap gap-1.5">
+                    {profile.focus.map(item => (
+                      <span key={item} className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-medium text-white/80">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
                   <div className="relative mt-5 flex gap-2.5 md:max-w-md">
                     <a href={profile.cvUrl} download className="flex flex-1 items-center justify-center gap-1.5 rounded-2xl bg-white py-3 text-sm font-bold text-neutral-950 transition active:scale-95">
                       <svg viewBox="0 0 24 24" className="size-4 fill-none stroke-current stroke-[2.2]" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14" /></svg>
@@ -186,13 +199,35 @@ export default function PhoneApp({ open, onClose }: { open: boolean; onClose(): 
                   {profile.about.map((paragraph, i) => (
                     <p key={i}>{paragraph}</p>
                   ))}
-                  <div className="flex flex-wrap gap-1.5 pt-2">
-                    {profile.skills.map(skill => (
-                      <span key={skill} className="rounded-full bg-amber-400/10 px-3 py-1 text-xs font-medium text-amber-200">
-                        {skill}
-                      </span>
+                </div>
+                <div className="mt-3 space-y-3 rounded-3xl bg-white/[0.06] p-5 ring-1 ring-white/5">
+                  <p className="text-sm font-semibold">Mi stack</p>
+                  {profile.stack.map(group => (
+                    <div key={group.group}>
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-white/45">{group.group}</p>
+                      <div className="mt-1.5 flex flex-wrap gap-1.5">
+                        {group.items.map(item => (
+                          <span key={item} className="rounded-full bg-amber-400/10 px-3 py-1 text-xs font-medium text-amber-200">
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 rounded-3xl bg-white/[0.06] p-5 ring-1 ring-white/5">
+                  <p className="text-sm font-semibold">Fuera del código</p>
+                  <p className="mt-2 text-[14px] leading-relaxed text-white/75">{profile.beyondCode}</p>
+                  <p className="mt-4 text-[11px] font-semibold uppercase tracking-wider text-white/45">Libros favoritos</p>
+                  <ul className="mt-2 space-y-1.5">
+                    {profile.books.map(book => (
+                      <li key={book.title} className="flex items-center gap-2 text-[13px]">
+                        <span aria-hidden="true">📖</span>
+                        <span className="font-medium">{book.title}</span>
+                        <span className="text-white/45">· {book.author}</span>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
               </section>
 
@@ -222,7 +257,7 @@ export default function PhoneApp({ open, onClose }: { open: boolean; onClose(): 
                           ))}
                         </div>
                         <div className="mt-4 flex gap-2">
-                          <LinkButton href={project.demo} primary>Demo</LinkButton>
+                          <LinkButton href={project.demo} primary>{project.demoLabel ?? 'Demo'}</LinkButton>
                           <LinkButton href={project.github}>GitHub</LinkButton>
                         </div>
                       </div>
@@ -275,7 +310,7 @@ export default function PhoneApp({ open, onClose }: { open: boolean; onClose(): 
                 </div>
                 <ol className="relative space-y-3 before:absolute before:bottom-4 before:left-[19px] before:top-4 before:w-px before:bg-white/10">
                   {timeline.map(item => (
-                    <li key={`${item.title}-${item.start}`} className="relative flex gap-4">
+                    <li key={`${item.title}-${item.place}-${item.start}`} className="relative flex gap-4">
                       <span aria-hidden="true" className="relative z-10 mt-4 grid size-10 shrink-0 place-items-center rounded-full bg-[#0b0b0f] ring-1 ring-white/15">
                         <span className="size-2.5 rounded-full bg-amber-400" />
                       </span>

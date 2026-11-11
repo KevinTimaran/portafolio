@@ -58,7 +58,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
           ))}
         </ul>
         <div className="mt-6 flex flex-wrap gap-2">
-          <ProjectLink href={project.demo} label="Demo en vivo" primary />
+          <ProjectLink href={project.demo} label={project.demoLabel ?? 'Demo en vivo'} primary />
           <ProjectLink href={project.github} label="GitHub" />
         </div>
       </div>

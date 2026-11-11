@@ -13,7 +13,7 @@ function Timeline({ title, icon, items }: { title: string; icon: string; items: 
       </h3>
       <ol className="border-l-2 border-gold/60">
         {items.map(item => (
-          <li key={`${item.title}-${item.start}`} className="relative mb-10 ml-7 last:mb-0">
+          <li key={`${item.title}-${item.place}-${item.start}`} className="relative mb-10 ml-7 last:mb-0">
             <span aria-hidden="true" className="absolute -left-[35px] top-1.5 size-3 rotate-45 border-2 border-paper bg-oxblood" />
             <p className="font-caps text-[11px] tracking-[2px] text-ink-muted">
               {item.start} — {item.end}

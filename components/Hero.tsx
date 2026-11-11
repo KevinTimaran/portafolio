@@ -18,7 +18,14 @@ export default function Hero() {
           </h1>
           <p className="mt-4 font-caps text-xs tracking-[2.5px] text-ink-muted sm:text-sm">{profile.role}</p>
           <div className="my-6 h-px w-16 bg-oxblood/40" aria-hidden="true" />
-          <p className="max-w-xl text-xl leading-relaxed">{profile.tagline}</p>
+          <p className="max-w-xl font-display text-2xl italic leading-relaxed">«{profile.tagline}»</p>
+          <ul className="mt-6 flex flex-wrap gap-2" aria-label="Áreas de enfoque">
+            {profile.focus.map(item => (
+              <li key={item} className="rounded-full border border-oxblood/30 px-3 py-1 font-caps text-[10px] tracking-[1.5px] text-oxblood">
+                {item}
+              </li>
+            ))}
+          </ul>
           <div className="mt-8 flex flex-wrap gap-3">
             <a
               href={profile.cvUrl}
@@ -38,14 +45,23 @@ export default function Hero() {
 
         <figure className="mx-auto w-full max-w-xs md:max-w-sm">
           <div className="-rotate-1 border border-ink/20 bg-[#f4ead4] p-3 shadow-[0_20px_50px_-20px_#36291c80]">
-            <Image
-              src={profile.portrait}
-              alt={`Foto de ${profile.fullName}`}
-              width={600}
-              height={750}
-              priority
-              className="aspect-[4/5] w-full object-cover sepia-[.25]"
-            />
+            {profile.portrait ? (
+              <Image
+                src={profile.portrait}
+                alt={`Foto de ${profile.fullName}`}
+                width={600}
+                height={750}
+                priority
+                className="aspect-[4/5] w-full object-cover sepia-[.25]"
+              />
+            ) : (
+              <div className="grid aspect-[4/5] w-full place-items-center border border-dashed border-ink/30 bg-paper-deep/60 text-center">
+                <div>
+                  <span className="block font-display text-6xl text-oxblood/60">{profile.initials}</span>
+                  <span className="mt-3 block font-caps text-[10px] tracking-[2.5px] text-ink-muted">Aquí irá mi foto</span>
+                </div>
+              </div>
+            )}
           </div>
           <figcaption className="mt-4 text-center text-sm italic text-ink-muted">
             <span className="mr-2 font-caps not-italic tracking-[2px]">FIG. I</span> Retrato del autor
